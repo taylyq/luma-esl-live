@@ -1,0 +1,18 @@
+.DS_Store
+
+# Local environment and generated demo data
+database/demo.sqlite
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Dependencies and build output
+vendor/
+node_modules/
+dist/
+build/
+
+# Logs and uploads
+*.log
+public/uploads/*
+!public/uploads/.gitkeep
