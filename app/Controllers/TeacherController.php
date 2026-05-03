@@ -95,6 +95,12 @@ final class TeacherController
     public function update(): void
     {
         $user = require_auth('educator');
+        $photo = trim((string) ($_POST['profile_photo'] ?? ''));
+
+        if (!empty($_FILES['profile_photo_upload']['tmp_name'])) {
+            $photo = $this->storeProfilePhoto($_FILES['profile_photo_upload']);
+        }
+
         $statement = db()->prepare(
             'UPDATE educator_profiles
              SET headline = ?, bio = ?, years_experience = ?, native_language = ?, teaching_languages = ?, specialties = ?, hourly_rate = ?, timezone = ?, profile_photo = ?, approval_status = CASE WHEN approval_status = "rejected" THEN "pending" ELSE approval_status END
@@ -109,7 +115,7 @@ final class TeacherController
             trim((string) $_POST['specialties']),
             (float) $_POST['hourly_rate'],
             trim((string) $_POST['timezone']),
-            trim((string) $_POST['profile_photo']),
+            $photo,
             $user['id'],
         ]);
 
@@ -133,5 +139,45 @@ final class TeacherController
         $statement->execute([$id]);
 
         return $statement->fetch() ?: null;
+    }
+
+    private function storeProfilePhoto(array $file): string
+    {
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            flash('error', 'The photo upload failed. Please try again.');
+            redirect('/teacher/profile');
+        }
+
+        if (($file['size'] ?? 0) > 2 * 1024 * 1024) {
+            flash('error', 'Profile photos must be smaller than 2MB.');
+            redirect('/teacher/profile');
+        }
+
+        $mime = mime_content_type($file['tmp_name']);
+        $extensions = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+        ];
+
+        if (!isset($extensions[$mime])) {
+            flash('error', 'Upload a JPG, PNG, or WebP profile photo.');
+            redirect('/teacher/profile');
+        }
+
+        $directory = dirname(__DIR__, 2) . '/public/uploads/teachers';
+        if (!is_dir($directory)) {
+            mkdir($directory, 0775, true);
+        }
+
+        $filename = bin2hex(random_bytes(16)) . '.' . $extensions[$mime];
+        $destination = $directory . '/' . $filename;
+
+        if (!move_uploaded_file($file['tmp_name'], $destination)) {
+            flash('error', 'The photo could not be saved.');
+            redirect('/teacher/profile');
+        }
+
+        return '/uploads/teachers/' . $filename;
     }
 }

@@ -1,6 +1,7 @@
 PRAGMA foreign_keys = ON;
 
 DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS password_resets;
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS enrollments;
 DROP TABLE IF EXISTS class_requests;
@@ -18,9 +19,21 @@ CREATE TABLE users (
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
+    email_verified_at TEXT NULL,
+    email_verification_token TEXT NULL,
     avatar TEXT NULL,
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','pending','suspended')),
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE password_resets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL,
+    used_at TEXT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE educator_profiles (

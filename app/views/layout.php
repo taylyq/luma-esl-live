@@ -1,4 +1,4 @@
-<?php $user = current_user(); ?>
+<?php $user = current_user(); $unreadCount = $user ? unread_messages_count($user) : 0; ?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -22,7 +22,7 @@
             <a href="/pricing" class="<?= route_is('/pricing') ? 'active' : '' ?>">Pricing</a>
             <?php if ($user): ?>
                 <a href="/dashboard" class="<?= route_is('/dashboard') ? 'active' : '' ?>">Dashboard</a>
-                <a href="/messages" class="<?= route_is('/messages') ? 'active' : '' ?>">Messages</a>
+                <a href="/messages" class="<?= route_is('/messages') ? 'active' : '' ?>">Messages<?php if ($unreadCount > 0): ?><span class="nav-badge"><?= $unreadCount ?></span><?php endif; ?></a>
                 <?php if ($user['role'] === 'educator'): ?>
                     <a href="/teacher/classes">Classes</a>
                 <?php endif; ?>

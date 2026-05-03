@@ -4,7 +4,7 @@
         <aside class="chat-list">
             <?php foreach ($chats as $item): ?>
                 <a href="/messages/<?= (int) $item['id'] ?>" class="chat-list-item <?= (int) $item['id'] === (int) $chat['id'] ? 'active' : '' ?>">
-                    <strong><?= e($item['counterpart']) ?></strong>
+                    <strong><?= e($item['counterpart']) ?><?php if ((int) $item['unread_count'] > 0): ?><span class="unread-pill"><?= (int) $item['unread_count'] ?></span><?php endif; ?></strong>
                     <span><?= e($item['preview'] ?: 'No messages yet') ?></span>
                 </a>
             <?php endforeach; ?>

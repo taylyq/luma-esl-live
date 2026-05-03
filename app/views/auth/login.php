@@ -8,6 +8,7 @@
             <label>Password<input name="password" type="password" required autocomplete="current-password"></label>
             <button class="button button-dark full" type="submit">Sign in</button>
         </form>
+        <p class="muted"><a href="/forgot-password">Forgot password?</a></p>
         <p class="muted">Demo password is <strong>password</strong>. Try student, teacher, or admin seeded accounts.</p>
     </div>
 </section>

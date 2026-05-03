@@ -18,6 +18,7 @@ final class ChatController
         $user = require_auth();
         $chatId = (int) ($_GET['id'] ?? 0);
         $chat = $this->authorizeChat($chatId, $user);
+        $this->markRead($chatId, (int) $user['id']);
 
         $messages = db()->prepare(
             "SELECT m.*, u.name AS sender_name
@@ -113,6 +114,7 @@ final class ChatController
 
             $statement = db()->prepare(
                 "SELECT c.id, su.name AS counterpart, MAX(m.created_at) AS last_message_at,
+                    SUM(CASE WHEN m.sender_id != ? AND m.read_at IS NULL THEN 1 ELSE 0 END) AS unread_count,
                     (SELECT message_body FROM messages WHERE chat_id = c.id ORDER BY created_at DESC, id DESC LIMIT 1) AS preview
                  FROM chats c
                  JOIN users su ON su.id = c.student_id
@@ -121,12 +123,13 @@ final class ChatController
                  GROUP BY c.id, su.name
                  ORDER BY last_message_at DESC"
             );
-            $statement->execute([$educator['id']]);
+            $statement->execute([$user['id'], $educator['id']]);
             return $statement->fetchAll();
         }
 
         $statement = db()->prepare(
-                "SELECT c.id, eu.name AS counterpart, MAX(m.created_at) AS last_message_at,
+            "SELECT c.id, eu.name AS counterpart, MAX(m.created_at) AS last_message_at,
+                SUM(CASE WHEN m.sender_id != ? AND m.read_at IS NULL THEN 1 ELSE 0 END) AS unread_count,
                     (SELECT message_body FROM messages WHERE chat_id = c.id ORDER BY created_at DESC, id DESC LIMIT 1) AS preview
              FROM chats c
              JOIN educator_profiles ep ON ep.id = c.educator_id
@@ -136,8 +139,14 @@ final class ChatController
              GROUP BY c.id, eu.name
              ORDER BY last_message_at DESC"
         );
-        $statement->execute([$user['id']]);
+        $statement->execute([$user['id'], $user['id']]);
 
         return $statement->fetchAll();
+    }
+
+    private function markRead(int $chatId, int $userId): void
+    {
+        $statement = db()->prepare('UPDATE messages SET read_at = CURRENT_TIMESTAMP WHERE chat_id = ? AND sender_id != ? AND read_at IS NULL');
+        $statement->execute([$chatId, $userId]);
     }
 }

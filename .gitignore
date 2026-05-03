@@ -1,10 +1,12 @@
 .DS_Store
 
 # Local environment and generated demo data
+.env
 database/demo.sqlite
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+storage/mail.log
 
 # Dependencies and build output
 vendor/

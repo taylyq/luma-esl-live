@@ -92,6 +92,26 @@ textarea {
     color: var(--muted);
 }
 
+.site-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.nav-badge,
+.unread-pill {
+    display: inline-grid;
+    min-width: 21px;
+    height: 21px;
+    place-items: center;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--blue);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+}
+
 .site-nav a.active,
 .site-nav a:hover {
     color: var(--ink);
@@ -255,6 +275,10 @@ textarea {
 .review-card span,
 .price-card p {
     color: var(--muted);
+}
+
+.top-gap {
+    margin-top: 14px;
 }
 
 .hero-media {
@@ -563,6 +587,15 @@ textarea:focus {
     box-shadow: var(--shadow);
 }
 
+.photo-preview img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+}
+
 .profile-copy {
     padding: 34px;
     background: #fff;
@@ -703,12 +736,15 @@ textarea:focus {
     background: #fff;
 }
 
-.chat-list-item strong,
-.chat-list-item span {
-    display: block;
+.chat-list-item strong {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
 }
 
-.chat-list-item span {
+.chat-list-item > span {
+    display: block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

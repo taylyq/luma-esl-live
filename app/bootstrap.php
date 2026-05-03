@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 session_start();
 
-$config = require dirname(__DIR__) . '/config.php';
-
 spl_autoload_register(function (string $class): void {
     $path = dirname(__DIR__) . '/' . str_replace('\\', '/', $class) . '.php';
     if (is_file($path)) {
@@ -14,6 +12,10 @@ spl_autoload_register(function (string $class): void {
 });
 
 require __DIR__ . '/helpers.php';
+
+load_env(dirname(__DIR__) . '/.env');
+
+$config = require dirname(__DIR__) . '/config.php';
 
 try {
     $GLOBALS['pdo'] = App\Database::connect($config['db']);

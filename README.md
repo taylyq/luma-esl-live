@@ -13,19 +13,27 @@ A polished PHP, JavaScript, and MySQL MVP for an ESL teacher marketplace. Studen
 
 ## Quick Start
 
-1. For immediate local demo mode, create the SQLite demo database:
+1. Create a local environment file:
+
+```bash
+cp .env.example .env
+```
+
+The default `.env` values use SQLite for fast local preview.
+
+2. For immediate local demo mode, create the SQLite demo database:
 
 ```bash
 php database/init_sqlite.php
 ```
 
-2. Start the PHP server:
+3. Start the PHP server:
 
 ```bash
 php -S localhost:8080 -t public
 ```
 
-3. Open `http://localhost:8080`.
+4. Open `http://localhost:8080`.
 
 Demo password for seeded accounts: `password`
 
@@ -36,6 +44,17 @@ Seeded accounts:
 - `linh@luma.test`
 - `marcus@luma.test`
 - `admin@luma.test`
+
+Local email verification and password reset messages are written to `storage/mail.log` unless `APP_USE_PHP_MAIL=true` is configured.
+
+## Beta Features
+
+- Environment-driven config with `.env`
+- Email verification with resend support
+- Password reset links with expiring tokens
+- Teacher profile photo uploads to `public/uploads/teachers`
+- Unread message badges in navigation, dashboards, and chat lists
+- SQLite demo mode plus MySQL production schema
 
 ## MySQL Setup
 

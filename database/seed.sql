@@ -1,12 +1,12 @@
 USE luma_esl;
 
-INSERT INTO users (role, name, email, password, avatar, status) VALUES
-('admin', 'Admin', 'admin@luma.test', '$2y$12$6ITd8uWlC9v28xa50NSbweUEM0Dm.L.BozvZ1PJNy8oDibFtKqqVu', NULL, 'active'),
-('student', 'Minh Tran', 'student@luma.test', '$2y$12$6ITd8uWlC9v28xa50NSbweUEM0Dm.L.BozvZ1PJNy8oDibFtKqqVu', NULL, 'active'),
-('educator', 'Amelia Carter', 'amelia@luma.test', '$2y$12$6ITd8uWlC9v28xa50NSbweUEM0Dm.L.BozvZ1PJNy8oDibFtKqqVu', NULL, 'active'),
-('educator', 'Linh Nguyen', 'linh@luma.test', '$2y$12$6ITd8uWlC9v28xa50NSbweUEM0Dm.L.BozvZ1PJNy8oDibFtKqqVu', NULL, 'active'),
-('educator', 'Marcus Lee', 'marcus@luma.test', '$2y$12$6ITd8uWlC9v28xa50NSbweUEM0Dm.L.BozvZ1PJNy8oDibFtKqqVu', NULL, 'active')
-ON DUPLICATE KEY UPDATE email = VALUES(email);
+INSERT INTO users (role, name, email, password, email_verified_at, avatar, status) VALUES
+('admin', 'Admin', 'admin@luma.test', '$2y$12$6ITd8uWlC9v28xa50NSbweUEM0Dm.L.BozvZ1PJNy8oDibFtKqqVu', NOW(), NULL, 'active'),
+('student', 'Minh Tran', 'student@luma.test', '$2y$12$6ITd8uWlC9v28xa50NSbweUEM0Dm.L.BozvZ1PJNy8oDibFtKqqVu', NOW(), NULL, 'active'),
+('educator', 'Amelia Carter', 'amelia@luma.test', '$2y$12$6ITd8uWlC9v28xa50NSbweUEM0Dm.L.BozvZ1PJNy8oDibFtKqqVu', NOW(), NULL, 'active'),
+('educator', 'Linh Nguyen', 'linh@luma.test', '$2y$12$6ITd8uWlC9v28xa50NSbweUEM0Dm.L.BozvZ1PJNy8oDibFtKqqVu', NOW(), NULL, 'active'),
+('educator', 'Marcus Lee', 'marcus@luma.test', '$2y$12$6ITd8uWlC9v28xa50NSbweUEM0Dm.L.BozvZ1PJNy8oDibFtKqqVu', NOW(), NULL, 'active')
+ON DUPLICATE KEY UPDATE email = VALUES(email), email_verified_at = VALUES(email_verified_at);
 
 INSERT INTO educator_profiles (user_id, headline, bio, years_experience, native_language, teaching_languages, specialties, hourly_rate, timezone, verified, approval_status, profile_photo)
 SELECT id, 'Interview English and calm conversation coaching', 'I help Vietnamese professionals speak clearly in interviews, meetings, and everyday conversations. My sessions are structured, kind, and practical.', 8, 'English', 'English,Vietnamese', 'Interview prep,Business English,Conversation', 24.00, 'Asia/Ho_Chi_Minh', 1, 'approved', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80' FROM users WHERE email = 'amelia@luma.test'

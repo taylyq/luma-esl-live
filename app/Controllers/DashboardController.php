@@ -30,7 +30,8 @@ final class DashboardController
             $requests->execute([$profile['id']]);
 
             $messages = db()->prepare(
-                "SELECT c.id, u.name AS student_name, MAX(m.created_at) AS last_message_at
+                "SELECT c.id, u.name AS student_name, MAX(m.created_at) AS last_message_at,
+                    SUM(CASE WHEN m.sender_id != ? AND m.read_at IS NULL THEN 1 ELSE 0 END) AS unread_count
                  FROM chats c
                  JOIN users u ON u.id = c.student_id
                  LEFT JOIN messages m ON m.chat_id = c.id
@@ -39,7 +40,7 @@ final class DashboardController
                  ORDER BY last_message_at DESC
                  LIMIT 5"
             );
-            $messages->execute([$profile['id']]);
+            $messages->execute([$user['id'], $profile['id']]);
 
             view('dashboards/teacher', [
                 'title' => 'Teacher dashboard',
@@ -76,7 +77,8 @@ final class DashboardController
         $requests->execute([$user['id']]);
 
         $messages = db()->prepare(
-            "SELECT c.id, u.name AS teacher_name, MAX(m.created_at) AS last_message_at
+            "SELECT c.id, u.name AS teacher_name, MAX(m.created_at) AS last_message_at,
+                SUM(CASE WHEN m.sender_id != ? AND m.read_at IS NULL THEN 1 ELSE 0 END) AS unread_count
              FROM chats c
              JOIN educator_profiles ep ON ep.id = c.educator_id
              JOIN users u ON u.id = ep.user_id
@@ -86,7 +88,7 @@ final class DashboardController
              ORDER BY last_message_at DESC
              LIMIT 5"
         );
-        $messages->execute([$user['id']]);
+        $messages->execute([$user['id'], $user['id']]);
 
         view('dashboards/student', [
             'title' => 'Student dashboard',

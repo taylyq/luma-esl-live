@@ -33,7 +33,7 @@
         <article class="panel">
             <h2>Inbox</h2>
             <?php foreach ($messages as $chat): ?>
-                <a class="list-row simple" href="/messages/<?= (int) $chat['id'] ?>"><strong><?= e($chat['student_name']) ?></strong><span><?= $chat['last_message_at'] ? date('M j', strtotime($chat['last_message_at'])) : 'New chat' ?></span></a>
+                <a class="list-row simple" href="/messages/<?= (int) $chat['id'] ?>"><strong><?= e($chat['student_name']) ?><?php if ((int) $chat['unread_count'] > 0): ?> <span class="unread-pill"><?= (int) $chat['unread_count'] ?></span><?php endif; ?></strong><span><?= $chat['last_message_at'] ? date('M j', strtotime($chat['last_message_at'])) : 'New chat' ?></span></a>
             <?php endforeach; ?>
         </article>
     </div>

@@ -2,6 +2,40 @@
 
 declare(strict_types=1);
 
+function load_env(string $path): void
+{
+    if (!is_file($path)) {
+        return;
+    }
+
+    foreach (file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) {
+            continue;
+        }
+
+        [$key, $value] = explode('=', $line, 2);
+        $key = trim($key);
+        $value = trim($value);
+        $value = trim($value, "\"'");
+
+        if (getenv($key) === false) {
+            putenv($key . '=' . $value);
+            $_ENV[$key] = $value;
+        }
+    }
+}
+
+function env_value(string $key, mixed $default = null): mixed
+{
+    $value = getenv($key);
+    if ($value === false) {
+        return $default;
+    }
+
+    return $value;
+}
+
 function db(): PDO
 {
     if (!isset($GLOBALS['pdo'])) {
@@ -41,6 +75,10 @@ function current_user(): ?array
         return null;
     }
 
+    if (!isset($GLOBALS['pdo'])) {
+        return null;
+    }
+
     static $user = null;
     if ($user && (int) $user['id'] === (int) $_SESSION['user_id']) {
         return $user;
@@ -64,6 +102,12 @@ function require_auth(?string $role = null): array
         redirect('/dashboard');
     }
 
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    $verificationPaths = ['/email/verify', '/email/resend', '/logout'];
+    if (empty($user['email_verified_at']) && !in_array($path, $verificationPaths, true)) {
+        redirect('/email/verify');
+    }
+
     return $user;
 }
 
@@ -74,6 +118,60 @@ function csrf_token(): string
     }
 
     return $_SESSION['csrf_token'];
+}
+
+function token_hash(string $token): string
+{
+    return hash('sha256', $token);
+}
+
+function app_url(string $path = ''): string
+{
+    return rtrim((string) config('app_url'), '/') . '/' . ltrim($path, '/');
+}
+
+function send_app_mail(string $to, string $subject, string $body): void
+{
+    $headers = 'From: ' . config('mail.from') . "\r\n";
+    $sent = false;
+
+    if (config('mail.use_php_mail', false)) {
+        $sent = @mail($to, $subject, $body, $headers);
+    }
+
+    if (!$sent) {
+        $logPath = dirname(__DIR__) . '/storage/mail.log';
+        if (!is_dir(dirname($logPath))) {
+            mkdir(dirname($logPath), 0775, true);
+        }
+
+        file_put_contents(
+            $logPath,
+            "To: {$to}\nSubject: {$subject}\n{$body}\n---\n",
+            FILE_APPEND
+        );
+    }
+}
+
+function unread_messages_count(?array $user = null): int
+{
+    $user = $user ?: current_user();
+    if (!$user) {
+        return 0;
+    }
+
+    $statement = db()->prepare(
+        "SELECT COUNT(*)
+         FROM messages m
+         JOIN chats c ON c.id = m.chat_id
+         LEFT JOIN educator_profiles ep ON ep.id = c.educator_id
+         WHERE m.sender_id != ?
+           AND m.read_at IS NULL
+           AND (c.student_id = ? OR ep.user_id = ?)"
+    );
+    $statement->execute([$user['id'], $user['id'], $user['id']]);
+
+    return (int) $statement->fetchColumn();
 }
 
 function verify_csrf(): void

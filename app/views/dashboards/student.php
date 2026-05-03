@@ -25,7 +25,7 @@
         <article class="panel">
             <h2>Recent messages</h2>
             <?php foreach ($messages as $chat): ?>
-                <a class="list-row simple" href="/messages/<?= (int) $chat['id'] ?>"><strong><?= e($chat['teacher_name']) ?></strong><span><?= $chat['last_message_at'] ? date('M j', strtotime($chat['last_message_at'])) : 'New chat' ?></span></a>
+                <a class="list-row simple" href="/messages/<?= (int) $chat['id'] ?>"><strong><?= e($chat['teacher_name']) ?><?php if ((int) $chat['unread_count'] > 0): ?> <span class="unread-pill"><?= (int) $chat['unread_count'] ?></span><?php endif; ?></strong><span><?= $chat['last_message_at'] ? date('M j', strtotime($chat['last_message_at'])) : 'New chat' ?></span></a>
             <?php endforeach; ?>
             <?php if (!$messages): ?><div class="empty-state small">No messages yet.</div><?php endif; ?>
         </article>

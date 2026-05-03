@@ -7,9 +7,21 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(160) NOT NULL,
     email VARCHAR(190) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    email_verified_at DATETIME NULL,
+    email_verification_token VARCHAR(64) NULL,
     avatar VARCHAR(255) NULL,
     status ENUM('active','pending','suspended') NOT NULL DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS password_resets (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    token VARCHAR(64) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    used_at DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_password_resets_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS educator_profiles (
