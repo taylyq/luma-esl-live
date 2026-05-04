@@ -1,0 +1,17 @@
+Options -Indexes
+RewriteEngine On
+
+# Keep application internals and environment files out of the public web.
+RewriteRule ^(app|database|storage)(/|$) - [F,L]
+RewriteRule ^(\.env|config\.php|config\.example\.php|README\.md)$ - [F,L]
+
+# Serve public assets through /public while keeping clean URLs.
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -d
+RewriteRule ^(.+)$ public/$1 [L]
+
+# Send app routes to the PHP front controller.
+RewriteRule ^$ public/index.php [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ public/index.php [L]

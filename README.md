@@ -66,3 +66,13 @@ mysql -u root -p < database/seed.sql
 ```
 
 The MySQL schema and seed files are kept in `database/schema.sql` and `database/seed.sql`.
+
+## Hostinger Live Deployment
+
+This live repo includes Hostinger-ready root routing files and a complete live-demo SQL import.
+
+Use:
+
+- `HOSTINGER_DEPLOY.md` for the step-by-step deployment guide
+- `.env.hostinger.example` for live environment settings
+- `database/hostinger_live_demo.sql` for phpMyAdmin import
