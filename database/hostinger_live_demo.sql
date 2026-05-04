@@ -84,10 +84,15 @@ CREATE TABLE IF NOT EXISTS availabilities (
 
 CREATE TABLE IF NOT EXISTS chats (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    student_id BIGINT UNSIGNED NOT NULL,
-    educator_id BIGINT UNSIGNED NOT NULL,
+    user_one_id BIGINT UNSIGNED NOT NULL,
+    user_two_id BIGINT UNSIGNED NOT NULL,
+    student_id BIGINT UNSIGNED NULL,
+    educator_id BIGINT UNSIGNED NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_direct_chat (user_one_id, user_two_id),
     UNIQUE KEY unique_student_educator_chat (student_id, educator_id),
+    CONSTRAINT fk_chats_user_one FOREIGN KEY (user_one_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_chats_user_two FOREIGN KEY (user_two_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_chats_student FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_chats_educator FOREIGN KEY (educator_id) REFERENCES educator_profiles(id) ON DELETE CASCADE
 );
@@ -187,10 +192,10 @@ SELECT ep.id, s.id, NULL, 5, 'Clear, patient, and practical. I felt more confide
 FROM educator_profiles ep JOIN users u ON u.id = ep.user_id JOIN users s ON s.email = 'student@luma.test'
 WHERE u.email = 'amelia@luma.test';
 
-INSERT INTO chats (student_id, educator_id)
-SELECT s.id, ep.id FROM users s, educator_profiles ep JOIN users u ON u.id = ep.user_id
+INSERT INTO chats (user_one_id, user_two_id, student_id, educator_id)
+SELECT LEAST(s.id, ep.user_id), GREATEST(s.id, ep.user_id), s.id, ep.id FROM users s, educator_profiles ep JOIN users u ON u.id = ep.user_id
 WHERE s.email = 'student@luma.test' AND u.email = 'amelia@luma.test'
-ON DUPLICATE KEY UPDATE student_id = VALUES(student_id);
+ON DUPLICATE KEY UPDATE student_id = VALUES(student_id), educator_id = VALUES(educator_id);
 
 INSERT INTO messages (chat_id, sender_id, message_body)
 SELECT c.id, s.id, 'Can I join your next Zoom class? I am preparing for an interview.'

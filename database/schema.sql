@@ -83,10 +83,15 @@ CREATE TABLE IF NOT EXISTS availabilities (
 
 CREATE TABLE IF NOT EXISTS chats (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    student_id BIGINT UNSIGNED NOT NULL,
-    educator_id BIGINT UNSIGNED NOT NULL,
+    user_one_id BIGINT UNSIGNED NOT NULL,
+    user_two_id BIGINT UNSIGNED NOT NULL,
+    student_id BIGINT UNSIGNED NULL,
+    educator_id BIGINT UNSIGNED NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_direct_chat (user_one_id, user_two_id),
     UNIQUE KEY unique_student_educator_chat (student_id, educator_id),
+    CONSTRAINT fk_chats_user_one FOREIGN KEY (user_one_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_chats_user_two FOREIGN KEY (user_two_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_chats_student FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_chats_educator FOREIGN KEY (educator_id) REFERENCES educator_profiles(id) ON DELETE CASCADE
 );

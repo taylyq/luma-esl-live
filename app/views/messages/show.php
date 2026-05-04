@@ -13,9 +13,9 @@
             <div class="chat-header">
                 <div>
                     <span class="eyebrow">Conversation</span>
-                    <h1><?= e($user['role'] === 'student' ? $chat['teacher_name'] : $chat['student_name']) ?></h1>
+                    <h1><?= e($chat['counterpart']) ?></h1>
                 </div>
-                <span class="badge">Class inquiry</span>
+                <span class="badge"><?= e($chat['counterpart_role']) ?></span>
             </div>
             <div class="quick-prompts" data-prompts>
                 <button type="button">Can I join your next Zoom class?</button>

@@ -32,6 +32,7 @@ return [
         '/teacher/classes' => ['ClassController', 'store'],
         '/teacher/requests/update' => ['ClassController', 'updateRequest'],
         '/admin/admins/create' => ['AdminController', 'createAdmin'],
+        '/admin/students/update' => ['AdminController', 'updateStudent'],
         '/admin/educators/update' => ['AdminController', 'updateEducator'],
     ],
 ];

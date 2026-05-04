@@ -174,3 +174,18 @@ If uploads fail:
 - Create `public/uploads/teachers`.
 - Check folder permissions.
 - Keep uploaded photos under 2MB.
+
+## 9. Updating An Existing Live Database
+
+If the site was already live before direct admin/teacher/student messaging was added, deploy the latest Git code and then run this one-time phpMyAdmin import:
+
+```text
+database/migrate_direct_messaging_hostinger.sql
+```
+
+This migration keeps existing student-teacher chats and upgrades the `chats` table so:
+
+- admins can message students
+- admins can message teachers
+- teachers and students can message each other
+- students cannot message other students

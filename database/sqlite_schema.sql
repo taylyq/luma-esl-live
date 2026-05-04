@@ -95,10 +95,15 @@ CREATE TABLE availabilities (
 
 CREATE TABLE chats (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    student_id INTEGER NOT NULL,
-    educator_id INTEGER NOT NULL,
+    user_one_id INTEGER NOT NULL,
+    user_two_id INTEGER NOT NULL,
+    student_id INTEGER NULL,
+    educator_id INTEGER NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (user_one_id, user_two_id),
     UNIQUE (student_id, educator_id),
+    FOREIGN KEY (user_one_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_two_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (educator_id) REFERENCES educator_profiles(id) ON DELETE CASCADE
 );

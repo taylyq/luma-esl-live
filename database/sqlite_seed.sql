@@ -31,8 +31,8 @@ SELECT ep.id, s.id, NULL, 5, 'Clear, patient, and practical. I felt more confide
 FROM educator_profiles ep JOIN users u ON u.id = ep.user_id JOIN users s ON s.email = 'student@luma.test'
 WHERE u.email = 'amelia@luma.test';
 
-INSERT INTO chats (student_id, educator_id)
-SELECT s.id, ep.id FROM users s, educator_profiles ep JOIN users u ON u.id = ep.user_id
+INSERT INTO chats (user_one_id, user_two_id, student_id, educator_id)
+SELECT MIN(s.id, ep.user_id), MAX(s.id, ep.user_id), s.id, ep.id FROM users s, educator_profiles ep JOIN users u ON u.id = ep.user_id
 WHERE s.email = 'student@luma.test' AND u.email = 'amelia@luma.test';
 
 INSERT INTO messages (chat_id, sender_id, message_body)

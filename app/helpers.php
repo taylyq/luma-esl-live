@@ -164,12 +164,11 @@ function unread_messages_count(?array $user = null): int
         "SELECT COUNT(*)
          FROM messages m
          JOIN chats c ON c.id = m.chat_id
-         LEFT JOIN educator_profiles ep ON ep.id = c.educator_id
          WHERE m.sender_id != ?
            AND m.read_at IS NULL
-           AND (c.student_id = ? OR ep.user_id = ?)"
+           AND ? IN (c.user_one_id, c.user_two_id)"
     );
-    $statement->execute([$user['id'], $user['id'], $user['id']]);
+    $statement->execute([$user['id'], $user['id']]);
 
     return (int) $statement->fetchColumn();
 }

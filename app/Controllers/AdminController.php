@@ -31,11 +31,19 @@ final class AdminController
              ORDER BY created_at DESC"
         )->fetchAll();
 
+        $students = db()->query(
+            "SELECT id, name, email, status, email_verified_at, created_at
+             FROM users
+             WHERE role = 'student'
+             ORDER BY created_at DESC"
+        )->fetchAll();
+
         view('admin/index', [
             'title' => 'Admin',
             'stats' => $stats,
             'educators' => $educators,
             'admins' => $admins,
+            'students' => $students,
         ]);
     }
 
@@ -88,6 +96,23 @@ final class AdminController
         $statement->execute([$status, $verified, $profileId]);
 
         flash('success', 'Educator updated.');
+        redirect('/admin');
+    }
+
+    public function updateStudent(): void
+    {
+        require_auth('admin');
+        $studentId = (int) ($_POST['student_id'] ?? 0);
+        $status = (string) ($_POST['status'] ?? 'active');
+
+        if (!in_array($status, ['active', 'suspended'], true)) {
+            redirect('/admin');
+        }
+
+        $statement = db()->prepare("UPDATE users SET status = ? WHERE id = ? AND role = 'student'");
+        $statement->execute([$status, $studentId]);
+
+        flash('success', 'Student updated.');
         redirect('/admin');
     }
 }

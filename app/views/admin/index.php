@@ -31,6 +31,28 @@
         </article>
     </div>
     <article class="panel">
+        <h2>Student management</h2>
+        <?php foreach ($students as $student): ?>
+            <form method="post" action="/admin/students/update" class="admin-row">
+                <input type="hidden" name="_token" value="<?= csrf_token() ?>">
+                <input type="hidden" name="student_id" value="<?= (int) $student['id'] ?>">
+                <div><strong><?= e($student['name']) ?></strong><span><?= e($student['email']) ?> · <?= e($student['status']) ?></span></div>
+                <select name="status">
+                    <?php foreach (['active', 'suspended'] as $status): ?>
+                        <option value="<?= e($status) ?>" <?= $student['status'] === $status ? 'selected' : '' ?>><?= e($status) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button class="button button-dark" type="submit">Save</button>
+            </form>
+            <form method="post" action="/teachers/message" class="admin-message-row">
+                <input type="hidden" name="_token" value="<?= csrf_token() ?>">
+                <input type="hidden" name="recipient_id" value="<?= (int) $student['id'] ?>">
+                <input name="message_body" value="Hi <?= e($student['name']) ?>, this is the Luma ESL admin team." aria-label="Message to <?= e($student['name']) ?>">
+                <button class="button button-light" type="submit">Message student</button>
+            </form>
+        <?php endforeach; ?>
+    </article>
+    <article class="panel">
         <h2>Educator review queue</h2>
         <?php foreach ($educators as $educator): ?>
             <form method="post" action="/admin/educators/update" class="admin-row">
@@ -44,6 +66,12 @@
                     <?php endforeach; ?>
                 </select>
                 <button class="button button-dark" type="submit">Save</button>
+            </form>
+            <form method="post" action="/teachers/message" class="admin-message-row">
+                <input type="hidden" name="_token" value="<?= csrf_token() ?>">
+                <input type="hidden" name="recipient_id" value="<?= (int) $educator['user_id'] ?>">
+                <input name="message_body" value="Hi <?= e($educator['name']) ?>, this is the Luma ESL admin team." aria-label="Message to <?= e($educator['name']) ?>">
+                <button class="button button-light" type="submit">Message teacher</button>
             </form>
         <?php endforeach; ?>
     </article>

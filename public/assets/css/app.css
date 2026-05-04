@@ -832,6 +832,15 @@ textarea:focus {
     grid-template-columns: 1fr auto 170px auto;
 }
 
+.admin-message-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 0 0 14px;
+    border-bottom: 1px solid var(--line);
+}
+
 .check {
     display: flex;
     grid-auto-flow: column;

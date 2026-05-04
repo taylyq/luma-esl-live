@@ -9,8 +9,7 @@ final class ChatController
     public function index(): void
     {
         $user = require_auth();
-        $chats = $this->chatList($user);
-        view('messages/index', ['title' => 'Messages', 'chats' => $chats]);
+        view('messages/index', ['title' => 'Messages', 'chats' => $this->chatList($user)]);
     }
 
     public function show(): void
@@ -39,22 +38,28 @@ final class ChatController
 
     public function start(): void
     {
-        $user = require_auth('student');
+        $user = require_auth();
+        $recipientId = (int) ($_POST['recipient_id'] ?? 0);
         $educatorId = (int) ($_POST['educator_id'] ?? 0);
         $body = trim((string) ($_POST['message_body'] ?? 'I am interested in your next Zoom class.'));
 
-        $teacher = db()->prepare('SELECT id FROM educator_profiles WHERE id = ? AND approval_status = "approved" LIMIT 1');
-        $teacher->execute([$educatorId]);
-        if (!$teacher->fetch()) {
-            redirect('/teachers');
+        if ($recipientId === 0 && $educatorId > 0) {
+            $teacher = db()->prepare('SELECT id, user_id FROM educator_profiles WHERE id = ? AND approval_status = "approved" LIMIT 1');
+            $teacher->execute([$educatorId]);
+            $profile = $teacher->fetch();
+            if (!$profile) {
+                redirect('/teachers');
+            }
+            $recipientId = (int) $profile['user_id'];
         }
 
-        $insert = db()->prepare(insert_ignore_sql('chats', ['student_id', 'educator_id']));
-        $insert->execute([$user['id'], $educatorId]);
+        $recipient = $this->recipient($recipientId);
+        if (!$recipient || !$this->canMessage($user, $recipient)) {
+            flash('error', 'That conversation is not allowed.');
+            redirect($user['role'] === 'admin' ? '/admin' : '/messages');
+        }
 
-        $chat = db()->prepare('SELECT id FROM chats WHERE student_id = ? AND educator_id = ? LIMIT 1');
-        $chat->execute([$user['id'], $educatorId]);
-        $chatId = (int) $chat->fetch()['id'];
+        $chatId = $this->findOrCreateChat((int) $user['id'], (int) $recipient['id']);
 
         if ($body !== '') {
             $message = db()->prepare('INSERT INTO messages (chat_id, sender_id, message_body) VALUES (?, ?, ?)');
@@ -82,18 +87,19 @@ final class ChatController
     private function authorizeChat(int $chatId, array $user): array
     {
         $statement = db()->prepare(
-            "SELECT c.*, su.name AS student_name, eu.name AS teacher_name, ep.user_id AS teacher_user_id
+            "SELECT c.*,
+                other_user.id AS counterpart_id,
+                other_user.name AS counterpart,
+                other_user.role AS counterpart_role
              FROM chats c
-             JOIN users su ON su.id = c.student_id
-             JOIN educator_profiles ep ON ep.id = c.educator_id
-             JOIN users eu ON eu.id = ep.user_id
-             WHERE c.id = ?
+             JOIN users other_user ON other_user.id = CASE WHEN c.user_one_id = ? THEN c.user_two_id ELSE c.user_one_id END
+             WHERE c.id = ? AND (? IN (c.user_one_id, c.user_two_id))
              LIMIT 1"
         );
-        $statement->execute([$chatId]);
+        $statement->execute([$user['id'], $chatId, $user['id']]);
         $chat = $statement->fetch();
 
-        if (!$chat || ((int) $chat['student_id'] !== (int) $user['id'] && (int) $chat['teacher_user_id'] !== (int) $user['id'])) {
+        if (!$chat) {
             http_response_code(403);
             exit('Not allowed.');
         }
@@ -103,45 +109,74 @@ final class ChatController
 
     private function chatList(array $user): array
     {
-        if ($user['role'] === 'educator') {
-            $profile = db()->prepare('SELECT id FROM educator_profiles WHERE user_id = ? LIMIT 1');
-            $profile->execute([$user['id']]);
-            $educator = $profile->fetch();
-
-            if (!$educator) {
-                return [];
-            }
-
-            $statement = db()->prepare(
-                "SELECT c.id, su.name AS counterpart, MAX(m.created_at) AS last_message_at,
-                    SUM(CASE WHEN m.sender_id != ? AND m.read_at IS NULL THEN 1 ELSE 0 END) AS unread_count,
-                    (SELECT message_body FROM messages WHERE chat_id = c.id ORDER BY created_at DESC, id DESC LIMIT 1) AS preview
-                 FROM chats c
-                 JOIN users su ON su.id = c.student_id
-                 LEFT JOIN messages m ON m.chat_id = c.id
-                 WHERE c.educator_id = ?
-                 GROUP BY c.id, su.name
-                 ORDER BY last_message_at DESC"
-            );
-            $statement->execute([$user['id'], $educator['id']]);
-            return $statement->fetchAll();
-        }
-
         $statement = db()->prepare(
-            "SELECT c.id, eu.name AS counterpart, MAX(m.created_at) AS last_message_at,
+            "SELECT c.id,
+                other_user.name AS counterpart,
+                other_user.role AS counterpart_role,
+                MAX(c.created_at) AS chat_created_at,
+                MAX(m.created_at) AS last_message_at,
                 SUM(CASE WHEN m.sender_id != ? AND m.read_at IS NULL THEN 1 ELSE 0 END) AS unread_count,
-                    (SELECT message_body FROM messages WHERE chat_id = c.id ORDER BY created_at DESC, id DESC LIMIT 1) AS preview
+                (SELECT message_body FROM messages WHERE chat_id = c.id ORDER BY created_at DESC, id DESC LIMIT 1) AS preview
              FROM chats c
-             JOIN educator_profiles ep ON ep.id = c.educator_id
-             JOIN users eu ON eu.id = ep.user_id
+             JOIN users other_user ON other_user.id = CASE WHEN c.user_one_id = ? THEN c.user_two_id ELSE c.user_one_id END
              LEFT JOIN messages m ON m.chat_id = c.id
-             WHERE c.student_id = ?
-             GROUP BY c.id, eu.name
-             ORDER BY last_message_at DESC"
+             WHERE ? IN (c.user_one_id, c.user_two_id)
+             GROUP BY c.id, other_user.name, other_user.role
+             ORDER BY last_message_at DESC, chat_created_at DESC"
         );
-        $statement->execute([$user['id'], $user['id']]);
+        $statement->execute([$user['id'], $user['id'], $user['id']]);
 
         return $statement->fetchAll();
+    }
+
+    private function findOrCreateChat(int $senderId, int $recipientId): int
+    {
+        $one = min($senderId, $recipientId);
+        $two = max($senderId, $recipientId);
+
+        $existing = db()->prepare('SELECT id FROM chats WHERE user_one_id = ? AND user_two_id = ? LIMIT 1');
+        $existing->execute([$one, $two]);
+        $chat = $existing->fetch();
+        if ($chat) {
+            return (int) $chat['id'];
+        }
+
+        $studentId = null;
+        $educatorId = null;
+        foreach ([$senderId, $recipientId] as $userId) {
+            $user = $this->recipient($userId);
+            if ($user && $user['role'] === 'student') {
+                $studentId = $userId;
+            }
+            if ($user && $user['role'] === 'educator') {
+                $profile = db()->prepare('SELECT id FROM educator_profiles WHERE user_id = ? LIMIT 1');
+                $profile->execute([$userId]);
+                $row = $profile->fetch();
+                $educatorId = $row ? (int) $row['id'] : null;
+            }
+        }
+
+        $insert = db()->prepare('INSERT INTO chats (user_one_id, user_two_id, student_id, educator_id) VALUES (?, ?, ?, ?)');
+        $insert->execute([$one, $two, $studentId, $educatorId]);
+
+        return (int) db()->lastInsertId();
+    }
+
+    private function canMessage(array $sender, array $recipient): bool
+    {
+        if ((int) $sender['id'] === (int) $recipient['id']) {
+            return false;
+        }
+
+        return !($sender['role'] === 'student' && $recipient['role'] === 'student');
+    }
+
+    private function recipient(int $id): ?array
+    {
+        $statement = db()->prepare('SELECT id, name, email, role, status FROM users WHERE id = ? AND status != "suspended" LIMIT 1');
+        $statement->execute([$id]);
+
+        return $statement->fetch() ?: null;
     }
 
     private function markRead(int $chatId, int $userId): void
