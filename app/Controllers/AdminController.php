@@ -24,7 +24,53 @@ final class AdminController
              ORDER BY CASE ep.approval_status WHEN 'pending' THEN 1 WHEN 'rejected' THEN 2 WHEN 'approved' THEN 3 ELSE 4 END, ep.created_at DESC"
         )->fetchAll();
 
-        view('admin/index', ['title' => 'Admin', 'stats' => $stats, 'educators' => $educators]);
+        $admins = db()->query(
+            "SELECT id, name, email, status, email_verified_at, created_at
+             FROM users
+             WHERE role = 'admin'
+             ORDER BY created_at DESC"
+        )->fetchAll();
+
+        view('admin/index', [
+            'title' => 'Admin',
+            'stats' => $stats,
+            'educators' => $educators,
+            'admins' => $admins,
+        ]);
+    }
+
+    public function createAdmin(): void
+    {
+        require_auth('admin');
+
+        $name = trim((string) ($_POST['name'] ?? ''));
+        $email = trim((string) ($_POST['email'] ?? ''));
+        $password = (string) ($_POST['password'] ?? '');
+        $confirm = (string) ($_POST['password_confirmation'] ?? '');
+
+        if (strlen($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 8 || $password !== $confirm) {
+            flash('error', 'Enter a name, valid email, and matching password with at least 8 characters.');
+            redirect('/admin');
+        }
+
+        $statement = db()->prepare(
+            "INSERT INTO users (role, name, email, password, email_verified_at, status)
+             VALUES ('admin', ?, ?, ?, CURRENT_TIMESTAMP, 'active')"
+        );
+
+        try {
+            $statement->execute([
+                $name,
+                $email,
+                password_hash($password, PASSWORD_DEFAULT),
+            ]);
+        } catch (\Throwable) {
+            flash('error', 'An account already exists for that email.');
+            redirect('/admin');
+        }
+
+        flash('success', 'Admin account created.');
+        redirect('/admin');
     }
 
     public function updateEducator(): void
