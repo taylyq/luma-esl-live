@@ -13,13 +13,11 @@ final class TeacherController
         $type = trim((string) ($_GET['type'] ?? ''));
 
         $sql = "SELECT ep.*, u.name,
-                    COALESCE(AVG(r.rating), 0) AS rating,
-                    COUNT(DISTINCT r.id) AS review_count,
-                    MIN(cl.start_time) AS next_class
+                    COALESCE((SELECT AVG(r.rating) FROM reviews r WHERE r.educator_id = ep.id AND r.status = 'published'), 0) AS rating,
+                    (SELECT COUNT(*) FROM reviews r WHERE r.educator_id = ep.id AND r.status = 'published') AS review_count,
+                    (SELECT MIN(cl.start_time) FROM class_listings cl WHERE cl.educator_id = ep.id AND cl.status = 'published' AND cl.start_time >= CURRENT_TIMESTAMP) AS next_class
                 FROM educator_profiles ep
                 JOIN users u ON u.id = ep.user_id
-                LEFT JOIN reviews r ON r.educator_id = ep.id AND r.status = 'published'
-                LEFT JOIN class_listings cl ON cl.educator_id = ep.id AND cl.status = 'published' AND cl.start_time >= CURRENT_TIMESTAMP
                 WHERE ep.approval_status = 'approved'";
         $params = [];
 
@@ -39,7 +37,7 @@ final class TeacherController
             $params[] = $type;
         }
 
-        $sql .= ' GROUP BY ep.id, u.name ORDER BY ep.verified DESC, rating DESC, ep.hourly_rate ASC';
+        $sql .= ' ORDER BY ep.verified DESC, rating DESC, ep.hourly_rate ASC';
         $statement = db()->prepare($sql);
         $statement->execute($params);
 
@@ -127,13 +125,11 @@ final class TeacherController
     {
         $statement = db()->prepare(
             "SELECT ep.*, u.name,
-                COALESCE(AVG(r.rating), 0) AS rating,
-                COUNT(DISTINCT r.id) AS review_count
+                COALESCE((SELECT AVG(r.rating) FROM reviews r WHERE r.educator_id = ep.id AND r.status = 'published'), 0) AS rating,
+                (SELECT COUNT(*) FROM reviews r WHERE r.educator_id = ep.id AND r.status = 'published') AS review_count
              FROM educator_profiles ep
              JOIN users u ON u.id = ep.user_id
-             LEFT JOIN reviews r ON r.educator_id = ep.id AND r.status = 'published'
              WHERE ep.id = ? AND ep.approval_status = 'approved'
-             GROUP BY ep.id, u.name
              LIMIT 1"
         );
         $statement->execute([$id]);
