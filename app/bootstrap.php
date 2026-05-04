@@ -5,7 +5,14 @@ declare(strict_types=1);
 session_start();
 
 spl_autoload_register(function (string $class): void {
-    $path = dirname(__DIR__) . '/' . str_replace('\\', '/', $class) . '.php';
+    $prefix = 'App\\';
+    if (!str_starts_with($class, $prefix)) {
+        return;
+    }
+
+    $relativeClass = substr($class, strlen($prefix));
+    $path = __DIR__ . '/' . str_replace('\\', '/', $relativeClass) . '.php';
+
     if (is_file($path)) {
         require $path;
     }
