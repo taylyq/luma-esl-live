@@ -29,11 +29,14 @@
                 <?php if ($user['role'] === 'admin'): ?>
                     <a href="/admin">Admin</a>
                 <?php endif; ?>
-                <span class="nav-user" title="Signed in as <?= e($user['email']) ?>"><?= e($user['name']) ?></span>
-                <form action="/logout" method="post" class="nav-form">
-                    <input type="hidden" name="_token" value="<?= csrf_token() ?>">
-                    <button class="link-button" type="submit">Sign out</button>
-                </form>
+                <div class="nav-account" title="Signed in as <?= e($user['email']) ?>">
+                    <div class="nav-user-name"><?= e($user['name']) ?></div>
+                    <div class="nav-user-role"><?= e(ucfirst($user['role'])) ?></div>
+                    <form action="/logout" method="post" class="nav-form">
+                        <input type="hidden" name="_token" value="<?= csrf_token() ?>">
+                        <button class="link-button" type="submit">Sign out</button>
+                    </form>
+                </div>
             <?php else: ?>
                 <a href="/login">Sign in</a>
                 <a class="button button-dark" href="/register">Get started</a>
