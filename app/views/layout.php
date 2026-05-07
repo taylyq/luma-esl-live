@@ -29,6 +29,7 @@
                 <?php if ($user['role'] === 'admin'): ?>
                     <a href="/admin">Admin</a>
                 <?php endif; ?>
+                <span class="nav-user" title="Signed in as <?= e($user['email']) ?>"><?= e($user['name']) ?></span>
                 <form action="/logout" method="post" class="nav-form">
                     <input type="hidden" name="_token" value="<?= csrf_token() ?>">
                     <button class="link-button" type="submit">Sign out</button>

@@ -31,6 +31,16 @@
         </article>
     </div>
     <article class="panel">
+        <h2>Recent message reports</h2>
+        <?php foreach ($reports as $report): ?>
+            <div class="list-row simple">
+                <strong><?= e($report['reporter_name']) ?> reported <?= e($report['reported_name']) ?></strong>
+                <span><?= e($report['reason']) ?> · <?= e($report['message_body'] ?: $report['details'] ?: 'Conversation report') ?> · <?= date('M j, g:i A', strtotime($report['created_at'])) ?></span>
+            </div>
+        <?php endforeach; ?>
+        <?php if (!$reports): ?><div class="empty-state small">No message reports yet.</div><?php endif; ?>
+    </article>
+    <article class="panel">
         <h2>Student management</h2>
         <?php foreach ($students as $student): ?>
             <form method="post" action="/admin/students/update" class="admin-row">

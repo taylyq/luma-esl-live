@@ -33,6 +33,9 @@ final class ChatController
             'chat' => $chat,
             'messages' => $messages->fetchAll(),
             'chats' => $this->chatList($user),
+            'blockedByMe' => $this->hasBlock((int) $user['id'], (int) $chat['counterpart_id']),
+            'blockedByCounterpart' => $this->hasBlock((int) $chat['counterpart_id'], (int) $user['id']),
+            'canUseSafetyActions' => $this->canUseSafetyActions($user, $chat),
         ]);
     }
 
@@ -59,6 +62,11 @@ final class ChatController
             redirect($user['role'] === 'admin' ? '/admin' : '/messages');
         }
 
+        if ($this->isBlockedConversation($user, $recipient)) {
+            flash('error', 'This conversation is blocked.');
+            redirect('/messages');
+        }
+
         $chatId = $this->findOrCreateChat((int) $user['id'], (int) $recipient['id']);
 
         if ($body !== '') {
@@ -74,13 +82,87 @@ final class ChatController
         $user = require_auth();
         $chatId = (int) ($_POST['chat_id'] ?? 0);
         $body = trim((string) ($_POST['message_body'] ?? ''));
-        $this->authorizeChat($chatId, $user);
+        $chat = $this->authorizeChat($chatId, $user);
+
+        if ($this->isBlockedConversation($user, [
+            'id' => $chat['counterpart_id'],
+            'role' => $chat['counterpart_role'],
+        ])) {
+            flash('error', 'This conversation is blocked.');
+            redirect('/messages/' . $chatId);
+        }
 
         if ($body !== '') {
             $message = db()->prepare('INSERT INTO messages (chat_id, sender_id, message_body) VALUES (?, ?, ?)');
             $message->execute([$chatId, $user['id'], $body]);
         }
 
+        redirect('/messages/' . $chatId);
+    }
+
+    public function block(): void
+    {
+        $user = require_auth();
+        $chatId = (int) ($_POST['chat_id'] ?? 0);
+        $chat = $this->authorizeChat($chatId, $user);
+
+        if (!$this->canUseSafetyActions($user, $chat)) {
+            flash('error', 'Admins cannot be blocked.');
+            redirect('/messages/' . $chatId);
+        }
+
+        $this->insertIgnore(
+            'INSERT INTO message_blocks (blocker_id, blocked_user_id) VALUES (?, ?)',
+            [(int) $user['id'], (int) $chat['counterpart_id']]
+        );
+
+        flash('success', 'User blocked. They can no longer message you.');
+        redirect('/messages/' . $chatId);
+    }
+
+    public function report(): void
+    {
+        $user = require_auth();
+        $chatId = (int) ($_POST['chat_id'] ?? 0);
+        $messageId = (int) ($_POST['message_id'] ?? 0);
+        $reason = (string) ($_POST['reason'] ?? 'other');
+        $details = trim((string) ($_POST['details'] ?? ''));
+        $chat = $this->authorizeChat($chatId, $user);
+
+        if (!$this->canUseSafetyActions($user, $chat)) {
+            flash('error', 'Admins cannot be reported.');
+            redirect('/messages/' . $chatId);
+        }
+
+        if (!in_array($reason, ['spam', 'inappropriate', 'safety', 'other'], true)) {
+            $reason = 'other';
+        }
+
+        if ($messageId > 0) {
+            $message = db()->prepare('SELECT sender_id FROM messages WHERE id = ? AND chat_id = ? LIMIT 1');
+            $message->execute([$messageId, $chatId]);
+            $row = $message->fetch();
+            if (!$row || (int) $row['sender_id'] !== (int) $chat['counterpart_id']) {
+                flash('error', 'Only messages from the other person can be reported.');
+                redirect('/messages/' . $chatId);
+            }
+        } else {
+            $messageId = null;
+        }
+
+        $statement = db()->prepare(
+            'INSERT INTO message_reports (reporter_id, reported_user_id, chat_id, message_id, reason, details) VALUES (?, ?, ?, ?, ?, ?)'
+        );
+        $statement->execute([
+            (int) $user['id'],
+            (int) $chat['counterpart_id'],
+            $chatId,
+            $messageId,
+            $reason,
+            $details !== '' ? $details : null,
+        ]);
+
+        flash('success', 'Report sent to the admin team.');
         redirect('/messages/' . $chatId);
     }
 
@@ -92,11 +174,11 @@ final class ChatController
                 other_user.name AS counterpart,
                 other_user.role AS counterpart_role
              FROM chats c
-             JOIN users other_user ON other_user.id = CASE WHEN c.user_one_id = ? THEN c.user_two_id ELSE c.user_one_id END
-             WHERE c.id = ? AND (? IN (c.user_one_id, c.user_two_id))
+             JOIN users other_user ON other_user.id = CASE WHEN c.user_one_id = ? + 0 THEN c.user_two_id ELSE c.user_one_id END
+             WHERE c.id = ? AND (c.user_one_id = ? + 0 OR c.user_two_id = ? + 0)
              LIMIT 1"
         );
-        $statement->execute([$user['id'], $chatId, $user['id']]);
+        $statement->execute([$user['id'], $chatId, $user['id'], $user['id']]);
         $chat = $statement->fetch();
 
         if (!$chat) {
@@ -118,13 +200,13 @@ final class ChatController
                 SUM(CASE WHEN m.sender_id != ? AND m.read_at IS NULL THEN 1 ELSE 0 END) AS unread_count,
                 (SELECT message_body FROM messages WHERE chat_id = c.id ORDER BY created_at DESC, id DESC LIMIT 1) AS preview
              FROM chats c
-             JOIN users other_user ON other_user.id = CASE WHEN c.user_one_id = ? THEN c.user_two_id ELSE c.user_one_id END
+             JOIN users other_user ON other_user.id = CASE WHEN c.user_one_id = ? + 0 THEN c.user_two_id ELSE c.user_one_id END
              LEFT JOIN messages m ON m.chat_id = c.id
-             WHERE ? IN (c.user_one_id, c.user_two_id)
+             WHERE c.user_one_id = ? + 0 OR c.user_two_id = ? + 0
              GROUP BY c.id, other_user.name, other_user.role
              ORDER BY last_message_at DESC, chat_created_at DESC"
         );
-        $statement->execute([$user['id'], $user['id'], $user['id']]);
+        $statement->execute([$user['id'], $user['id'], $user['id'], $user['id']]);
 
         return $statement->fetchAll();
     }
@@ -169,6 +251,40 @@ final class ChatController
         }
 
         return !($sender['role'] === 'student' && $recipient['role'] === 'student');
+    }
+
+    private function canUseSafetyActions(array $user, array $chat): bool
+    {
+        return $user['role'] !== 'admin' && $chat['counterpart_role'] !== 'admin';
+    }
+
+    private function isBlockedConversation(array $sender, array $recipient): bool
+    {
+        if ($sender['role'] === 'admin' || $recipient['role'] === 'admin') {
+            return false;
+        }
+
+        return $this->hasBlock((int) $sender['id'], (int) $recipient['id'])
+            || $this->hasBlock((int) $recipient['id'], (int) $sender['id']);
+    }
+
+    private function hasBlock(int $blockerId, int $blockedUserId): bool
+    {
+        $statement = db()->prepare('SELECT id FROM message_blocks WHERE blocker_id = ? AND blocked_user_id = ? LIMIT 1');
+        $statement->execute([$blockerId, $blockedUserId]);
+
+        return (bool) $statement->fetch();
+    }
+
+    private function insertIgnore(string $mysqlSql, array $params): void
+    {
+        $driver = db()->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        $sql = $driver === 'sqlite'
+            ? str_replace('INSERT INTO', 'INSERT OR IGNORE INTO', $mysqlSql)
+            : str_replace('INSERT INTO', 'INSERT IGNORE INTO', $mysqlSql);
+
+        $statement = db()->prepare($sql);
+        $statement->execute($params);
     }
 
     private function recipient(int $id): ?array

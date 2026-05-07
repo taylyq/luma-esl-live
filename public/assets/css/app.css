@@ -121,6 +121,19 @@ textarea {
     margin: 0;
 }
 
+.nav-user {
+    max-width: 180px;
+    overflow: hidden;
+    padding: 7px 11px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .link-button,
 .nav-toggle {
     border: 0;
@@ -764,8 +777,39 @@ textarea:focus {
     border-bottom: 1px solid var(--line);
 }
 
+.chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
 .chat-header h1 {
     margin: 0;
+}
+
+.chat-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.chat-header-actions form {
+    margin: 0;
+}
+
+.button-small {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.conversation-notice {
+    padding: 12px 18px;
+    background: #fff8ea;
+    border-bottom: 1px solid var(--line);
+    color: var(--amber);
+    font-size: 14px;
+    font-weight: 700;
 }
 
 .quick-prompts {
@@ -817,11 +861,35 @@ textarea:focus {
     font-size: 12px;
 }
 
+.message-action-form {
+    margin: 8px 0 0;
+}
+
+.message-action-form button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 800;
+    opacity: .72;
+    padding: 0;
+}
+
+.message-action-form button:hover {
+    opacity: 1;
+}
+
 .composer {
     display: flex;
     gap: 10px;
     border-top: 1px solid var(--line);
     border-bottom: 0;
+}
+
+.composer-disabled {
+    color: var(--muted);
+    font-weight: 700;
 }
 
 .composer input {

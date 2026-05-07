@@ -8,6 +8,7 @@ This repo is prepared to deploy directly into Hostinger's `public_html` folder.
 - Root `.htaccess` that routes clean URLs to `public/index.php`
 - `public/.htaccess` for setups where the domain root is pointed at `/public`
 - Hostinger-safe live demo SQL: `database/hostinger_live_demo.sql`
+- One-time upgrade SQL files for existing live databases in `database/migrate_*_hostinger.sql`
 - Production environment template: `.env.hostinger.example`
 
 ## 1. Prepare Hostinger
@@ -189,3 +190,11 @@ This migration keeps existing student-teacher chats and upgrades the `chats` tab
 - admins can message teachers
 - teachers and students can message each other
 - students cannot message other students
+
+If the site was already live before message blocking/reporting was added, also run this one-time phpMyAdmin import after the direct messaging migration:
+
+```text
+database/migrate_message_safety_hostinger.sql
+```
+
+This creates the tables used by student/teacher message reports, student/teacher blocks, and the admin report panel. Admin accounts cannot be blocked or reported.

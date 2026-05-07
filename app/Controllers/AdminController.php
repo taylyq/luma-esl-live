@@ -15,6 +15,7 @@ final class AdminController
             'educators' => db()->query("SELECT COUNT(*) AS total FROM users WHERE role = 'educator'")->fetch()['total'],
             'classes' => db()->query("SELECT COUNT(*) AS total FROM class_listings")->fetch()['total'],
             'messages' => db()->query("SELECT COUNT(*) AS total FROM messages")->fetch()['total'],
+            'reports' => $this->openReportCount(),
         ];
 
         $educators = db()->query(
@@ -38,12 +39,15 @@ final class AdminController
              ORDER BY created_at DESC"
         )->fetchAll();
 
+        $reports = $this->recentReports();
+
         view('admin/index', [
             'title' => 'Admin',
             'stats' => $stats,
             'educators' => $educators,
             'admins' => $admins,
             'students' => $students,
+            'reports' => $reports,
         ]);
     }
 
@@ -115,4 +119,30 @@ final class AdminController
         flash('success', 'Student updated.');
         redirect('/admin');
     }
+    private function openReportCount(): int
+    {
+        try {
+            return (int) db()->query("SELECT COUNT(*) AS total FROM message_reports WHERE status = 'open'")->fetch()['total'];
+        } catch (\Throwable) {
+            return 0;
+        }
+    }
+
+    private function recentReports(): array
+    {
+        try {
+            return db()->query(
+                "SELECT mr.*, reporter.name AS reporter_name, reported.name AS reported_name, m.message_body
+                 FROM message_reports mr
+                 JOIN users reporter ON reporter.id = mr.reporter_id
+                 JOIN users reported ON reported.id = mr.reported_user_id
+                 LEFT JOIN messages m ON m.id = mr.message_id
+                 ORDER BY mr.created_at DESC
+                 LIMIT 12"
+            )->fetchAll();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
 }

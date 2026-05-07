@@ -27,6 +27,8 @@ return [
         '/logout' => ['AuthController', 'destroy'],
         '/teachers/message' => ['ChatController', 'start'],
         '/messages/send' => ['ChatController', 'send'],
+        '/messages/block' => ['ChatController', 'block'],
+        '/messages/report' => ['ChatController', 'report'],
         '/classes/request' => ['ClassController', 'requestJoin'],
         '/teacher/profile' => ['TeacherController', 'update'],
         '/teacher/classes' => ['ClassController', 'store'],

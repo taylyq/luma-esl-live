@@ -33,14 +33,14 @@ final class DashboardController
                 "SELECT c.id, other_user.name AS student_name, MAX(m.created_at) AS last_message_at,
                     SUM(CASE WHEN m.sender_id != ? AND m.read_at IS NULL THEN 1 ELSE 0 END) AS unread_count
                  FROM chats c
-                 JOIN users other_user ON other_user.id = CASE WHEN c.user_one_id = ? THEN c.user_two_id ELSE c.user_one_id END
+                 JOIN users other_user ON other_user.id = CASE WHEN c.user_one_id = ? + 0 THEN c.user_two_id ELSE c.user_one_id END
                  LEFT JOIN messages m ON m.chat_id = c.id
-                 WHERE ? IN (c.user_one_id, c.user_two_id)
+                 WHERE c.user_one_id = ? + 0 OR c.user_two_id = ? + 0
                  GROUP BY c.id, other_user.name
                  ORDER BY last_message_at DESC
                  LIMIT 5"
             );
-            $messages->execute([$user['id'], $user['id'], $user['id']]);
+            $messages->execute([$user['id'], $user['id'], $user['id'], $user['id']]);
 
             view('dashboards/teacher', [
                 'title' => 'Teacher dashboard',
@@ -80,14 +80,14 @@ final class DashboardController
             "SELECT c.id, other_user.name AS teacher_name, MAX(m.created_at) AS last_message_at,
                 SUM(CASE WHEN m.sender_id != ? AND m.read_at IS NULL THEN 1 ELSE 0 END) AS unread_count
              FROM chats c
-             JOIN users other_user ON other_user.id = CASE WHEN c.user_one_id = ? THEN c.user_two_id ELSE c.user_one_id END
+             JOIN users other_user ON other_user.id = CASE WHEN c.user_one_id = ? + 0 THEN c.user_two_id ELSE c.user_one_id END
              LEFT JOIN messages m ON m.chat_id = c.id
-             WHERE ? IN (c.user_one_id, c.user_two_id)
+             WHERE c.user_one_id = ? + 0 OR c.user_two_id = ? + 0
              GROUP BY c.id, other_user.name
              ORDER BY last_message_at DESC
              LIMIT 5"
         );
-        $messages->execute([$user['id'], $user['id'], $user['id']]);
+        $messages->execute([$user['id'], $user['id'], $user['id'], $user['id']]);
 
         view('dashboards/student', [
             'title' => 'Student dashboard',

@@ -5,6 +5,8 @@ DROP TABLE IF EXISTS password_resets;
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS enrollments;
 DROP TABLE IF EXISTS class_requests;
+DROP TABLE IF EXISTS message_reports;
+DROP TABLE IF EXISTS message_blocks;
 DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS chats;
 DROP TABLE IF EXISTS availabilities;
@@ -117,6 +119,33 @@ CREATE TABLE messages (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE,
     FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE message_blocks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    blocker_id INTEGER NOT NULL,
+    blocked_user_id INTEGER NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (blocker_id, blocked_user_id),
+    FOREIGN KEY (blocker_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (blocked_user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE message_reports (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    reporter_id INTEGER NOT NULL,
+    reported_user_id INTEGER NOT NULL,
+    chat_id INTEGER NOT NULL,
+    message_id INTEGER NULL,
+    reason TEXT NOT NULL DEFAULT 'other' CHECK (reason IN ('spam','inappropriate','safety','other')),
+    details TEXT NULL,
+    status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','reviewed','dismissed')),
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (reported_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE,
+    FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE SET NULL
 );
 
 CREATE TABLE class_requests (
