@@ -111,6 +111,11 @@ final class ChatController
             redirect('/messages/' . $chatId);
         }
 
+        if (!$this->messageSafetyTablesReady()) {
+            flash('error', 'Message safety tables need to be installed by admin.');
+            redirect('/messages/' . $chatId);
+        }
+
         $this->insertIgnore(
             'INSERT INTO message_blocks (blocker_id, blocked_user_id) VALUES (?, ?)',
             [(int) $user['id'], (int) $chat['counterpart_id']]
@@ -148,6 +153,11 @@ final class ChatController
             }
         } else {
             $messageId = null;
+        }
+
+        if (!$this->messageSafetyTablesReady()) {
+            flash('error', 'Message safety tables need to be installed by admin.');
+            redirect('/messages/' . $chatId);
         }
 
         $statement = db()->prepare(
@@ -270,10 +280,25 @@ final class ChatController
 
     private function hasBlock(int $blockerId, int $blockedUserId): bool
     {
-        $statement = db()->prepare('SELECT id FROM message_blocks WHERE blocker_id = ? AND blocked_user_id = ? LIMIT 1');
-        $statement->execute([$blockerId, $blockedUserId]);
+        try {
+            $statement = db()->prepare('SELECT id FROM message_blocks WHERE blocker_id = ? AND blocked_user_id = ? LIMIT 1');
+            $statement->execute([$blockerId, $blockedUserId]);
 
-        return (bool) $statement->fetch();
+            return (bool) $statement->fetch();
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    private function messageSafetyTablesReady(): bool
+    {
+        try {
+            db()->query('SELECT 1 FROM message_blocks LIMIT 1');
+            db()->query('SELECT 1 FROM message_reports LIMIT 1');
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     private function insertIgnore(string $mysqlSql, array $params): void
