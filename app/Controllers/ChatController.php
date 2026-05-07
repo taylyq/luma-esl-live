@@ -111,10 +111,7 @@ final class ChatController
             redirect('/messages/' . $chatId);
         }
 
-        if (!$this->messageSafetyTablesReady()) {
-            flash('error', 'Message safety tables need to be installed by admin.');
-            redirect('/messages/' . $chatId);
-        }
+        $this->ensureMessageSafetyTables();
 
         $this->insertIgnore(
             'INSERT INTO message_blocks (blocker_id, blocked_user_id) VALUES (?, ?)',
@@ -155,10 +152,7 @@ final class ChatController
             $messageId = null;
         }
 
-        if (!$this->messageSafetyTablesReady()) {
-            flash('error', 'Message safety tables need to be installed by admin.');
-            redirect('/messages/' . $chatId);
-        }
+        $this->ensureMessageSafetyTables();
 
         $statement = db()->prepare(
             'INSERT INTO message_reports (reporter_id, reported_user_id, chat_id, message_id, reason, details) VALUES (?, ?, ?, ?, ?, ?)'
@@ -290,15 +284,64 @@ final class ChatController
         }
     }
 
-    private function messageSafetyTablesReady(): bool
+    private function ensureMessageSafetyTables(): void
     {
-        try {
-            db()->query('SELECT 1 FROM message_blocks LIMIT 1');
-            db()->query('SELECT 1 FROM message_reports LIMIT 1');
-            return true;
-        } catch (\Throwable) {
-            return false;
+        $driver = db()->getAttribute(\PDO::ATTR_DRIVER_NAME);
+
+        if ($driver === 'sqlite') {
+            db()->exec("CREATE TABLE IF NOT EXISTS message_blocks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                blocker_id INTEGER NOT NULL,
+                blocked_user_id INTEGER NOT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (blocker_id, blocked_user_id),
+                FOREIGN KEY (blocker_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (blocked_user_id) REFERENCES users(id) ON DELETE CASCADE
+            )");
+
+            db()->exec("CREATE TABLE IF NOT EXISTS message_reports (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                reporter_id INTEGER NOT NULL,
+                reported_user_id INTEGER NOT NULL,
+                chat_id INTEGER NOT NULL,
+                message_id INTEGER NULL,
+                reason TEXT NOT NULL DEFAULT 'other' CHECK (reason IN ('spam','inappropriate','safety','other')),
+                details TEXT NULL,
+                status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','reviewed','dismissed')),
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (reported_user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE,
+                FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE SET NULL
+            )");
+            return;
         }
+
+        db()->exec("CREATE TABLE IF NOT EXISTS message_blocks (
+            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            blocker_id BIGINT UNSIGNED NOT NULL,
+            blocked_user_id BIGINT UNSIGNED NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_message_block (blocker_id, blocked_user_id),
+            CONSTRAINT fk_message_blocks_blocker FOREIGN KEY (blocker_id) REFERENCES users(id) ON DELETE CASCADE,
+            CONSTRAINT fk_message_blocks_blocked FOREIGN KEY (blocked_user_id) REFERENCES users(id) ON DELETE CASCADE
+        )");
+
+        db()->exec("CREATE TABLE IF NOT EXISTS message_reports (
+            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            reporter_id BIGINT UNSIGNED NOT NULL,
+            reported_user_id BIGINT UNSIGNED NOT NULL,
+            chat_id BIGINT UNSIGNED NOT NULL,
+            message_id BIGINT UNSIGNED NULL,
+            reason ENUM('spam','inappropriate','safety','other') NOT NULL DEFAULT 'other',
+            details TEXT NULL,
+            status ENUM('open','reviewed','dismissed') NOT NULL DEFAULT 'open',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT fk_message_reports_reporter FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+            CONSTRAINT fk_message_reports_reported FOREIGN KEY (reported_user_id) REFERENCES users(id) ON DELETE CASCADE,
+            CONSTRAINT fk_message_reports_chat FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE,
+            CONSTRAINT fk_message_reports_message FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE SET NULL
+        )");
     }
 
     private function insertIgnore(string $mysqlSql, array $params): void
