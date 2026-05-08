@@ -58,7 +58,8 @@ textarea {
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-    padding: 18px clamp(20px, 4vw, 56px);
+    min-height: 72px;
+    padding: 12px clamp(20px, 4vw, 56px);
     background: rgba(251, 247, 239, .86);
     border-bottom: 1px solid rgba(234, 223, 206, .78);
     backdrop-filter: blur(18px);
@@ -81,8 +82,8 @@ textarea {
 }
 
 .brand-icon {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
     object-fit: contain;
     filter: drop-shadow(0 6px 14px rgba(217, 142, 34, .18));
 }
@@ -1091,7 +1092,10 @@ textarea:focus {
 
 @media (max-width: 720px) {
     .site-header {
-        align-items: flex-start;
+        align-items: center;
+        min-height: 64px;
+        padding-top: 10px;
+        padding-bottom: 10px;
     }
 
     .nav-toggle {
@@ -1103,12 +1107,12 @@ textarea:focus {
     }
 
     .brand-icon {
-        width: 36px;
-        height: 36px;
+        width: 28px;
+        height: 28px;
     }
 
     .brand-name {
-        font-size: 20px;
+        font-size: 18px;
     }
 
     .site-nav {

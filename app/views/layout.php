@@ -14,7 +14,7 @@
 <body>
     <header class="site-header">
         <a class="brand" href="/" aria-label="<?= e(config('app_name')) ?> home">
-            <img class="brand-icon" src="/assets/img/luma-esl-icon.png" alt="">
+            <img class="brand-icon" src="/assets/img/luma-esl-icon-tight.png" alt="">
             <span class="brand-copy">
                 <span class="brand-name">Luma<span>ESL</span></span>
                 <span class="brand-slogan">Speak first. Join with confidence.</span>
