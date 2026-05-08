@@ -64,10 +64,9 @@
             <strong><?= e(config('app_name')) ?></strong>
             <span>Speak first. Join with confidence. Verified ESL educators, calm booking, and Zoom classes that feel easy to enter.</span>
         </div>
-        <div class="footer-links">
-            <a href="/teachers">Browse</a>
-            <a href="/calendar">Calendar</a>
-            <a href="/register">Become a teacher</a>
+        <div class="footer-contact">
+            <span>Contact</span>
+            <a href="mailto:admin.lumaesl@gmail.com">admin.lumaesl@gmail.com</a>
         </div>
     </footer>
     <script src="/assets/js/app.js"></script>
