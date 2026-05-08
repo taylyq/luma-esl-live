@@ -248,6 +248,18 @@ textarea {
     background: #fff;
 }
 
+#google_translate_element,
+.goog-te-banner-frame,
+.goog-te-gadget,
+.goog-te-balloon-frame,
+.skiptranslate {
+    display: none !important;
+}
+
+body {
+    top: 0 !important;
+}
+
 .link-button,
 .nav-toggle {
     border: 0;

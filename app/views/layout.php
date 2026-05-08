@@ -9,13 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/app.css?v=20260509-account-menu">
+    <link rel="stylesheet" href="/assets/css/app.css?v=20260509-translator">
 </head>
 <body>
     <header class="site-header">
         <a class="brand" href="/" aria-label="<?= e(config('app_name')) ?> home">
             <img class="brand-logo" src="/assets/img/luma-esl-icon-small.png?v=1" alt="" aria-hidden="true">
-            <span class="brand-text">
+            <span class="brand-text notranslate">
                 <span class="brand-name"><?= e(config('app_name')) ?></span>
                 <span class="brand-slogan">Speak first. Join with confidence.</span>
             </span>
@@ -77,9 +77,11 @@
         </div>
         <div class="footer-contact">
             <span>Contact</span>
-            <a href="mailto:admin.lumaesl@gmail.com">admin.lumaesl@gmail.com</a>
+            <a class="notranslate" href="mailto:admin.lumaesl@gmail.com">admin.lumaesl@gmail.com</a>
         </div>
     </footer>
-    <script src="/assets/js/app.js"></script>
+    <div id="google_translate_element" aria-hidden="true"></div>
+    <script src="/assets/js/app.js?v=20260509-translator"></script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
