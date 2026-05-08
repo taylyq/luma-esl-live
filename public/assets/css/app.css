@@ -80,25 +80,34 @@ textarea {
 .brand {
     flex: 0 0 auto;
     gap: 6px;
-    max-width: 170px;
-    height: 28px;
+    max-width: 172px;
+    height: 30px;
+    max-height: 30px;
     overflow: hidden;
 }
 
 .brand-icon {
-    flex: 0 0 10px;
-    width: 10px;
-    height: 10px;
-    max-width: 10px;
-    max-height: 10px;
-    object-fit: contain;
-    filter: none;
+    display: block;
+    flex: 0 0 14px;
+    width: 14px;
+    height: 14px;
+    max-width: 14px;
+    max-height: 14px;
+    background-image: url('/assets/img/luma-esl-icon-tight.png?v=4');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
 }
 
 .brand-copy,
 .brand-name,
 .brand-slogan {
     display: block;
+    min-width: 0;
+}
+
+.brand-copy {
+    overflow: hidden;
 }
 
 .brand-name {
@@ -106,7 +115,10 @@ textarea {
     font-size: 18px;
     font-weight: 900;
     letter-spacing: 0;
+    overflow: hidden;
     line-height: .95;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .brand-name span {
@@ -121,7 +133,10 @@ textarea {
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0;
+    overflow: hidden;
     line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .site-nav {
@@ -1115,15 +1130,15 @@ textarea:focus {
     }
 
     .brand-icon {
-        flex-basis: 10px;
-        width: 10px;
-        height: 10px;
-        max-width: 10px;
-        max-height: 10px;
+        flex-basis: 12px;
+        width: 12px;
+        height: 12px;
+        max-width: 12px;
+        max-height: 12px;
     }
 
     .brand-name {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .site-nav {
