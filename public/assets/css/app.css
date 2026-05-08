@@ -77,12 +77,43 @@ textarea {
 
 .brand {
     flex: 0 0 auto;
+    gap: 10px;
 }
 
-.brand-logo {
-    width: clamp(154px, 17vw, 232px);
-    height: auto;
-    filter: drop-shadow(0 8px 18px rgba(10, 53, 87, .08));
+.brand-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 14px rgba(217, 142, 34, .18));
+}
+
+.brand-copy,
+.brand-name,
+.brand-slogan {
+    display: block;
+}
+
+.brand-name {
+    color: var(--blue);
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0;
+    line-height: .95;
+}
+
+.brand-name span {
+    margin-left: 2px;
+    font-size: .58em;
+    font-weight: 900;
+}
+
+.brand-slogan {
+    margin-top: 4px;
+    color: var(--blue);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1;
 }
 
 .site-nav {
@@ -1067,8 +1098,17 @@ textarea:focus {
         display: block;
     }
 
-    .brand-logo {
-        width: 148px;
+    .brand-slogan {
+        display: none;
+    }
+
+    .brand-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .brand-name {
+        font-size: 20px;
     }
 
     .site-nav {
