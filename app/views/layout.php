@@ -14,7 +14,7 @@
 <body>
     <header class="site-header">
         <a class="brand" href="/" aria-label="<?= e(config('app_name')) ?> home">
-            <img class="brand-logo" src="/assets/img/luma-esl-header-logo.png?v=1" alt="<?= e(config('app_name')) ?> · Speak first. Join with confidence.">
+            <img class="brand-logo" src="/assets/img/luma-esl-header-logo-transparent.png?v=1" alt="<?= e(config('app_name')) ?> · Speak first. Join with confidence.">
         </a>
         <button class="nav-toggle" type="button" data-nav-toggle aria-label="Open navigation">☰</button>
         <nav class="site-nav" data-nav>
