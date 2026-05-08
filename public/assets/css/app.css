@@ -304,6 +304,17 @@ textarea {
     font-size: 24px;
 }
 
+.stat-card {
+    display: grid;
+    align-content: center;
+    min-height: 96px;
+    padding: 22px 24px;
+}
+
+.stat-card strong {
+    line-height: 1;
+}
+
 .hero-proof span,
 .muted,
 .toolbar span,
@@ -414,7 +425,6 @@ textarea {
 
 .teacher-card-top,
 .toolbar,
-.app-heading,
 .list-row,
 .approval-row,
 .admin-row,
@@ -688,8 +698,19 @@ textarea:focus {
 }
 
 .app-heading {
-    align-items: end;
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
     margin-bottom: 26px;
+}
+
+.app-heading h1 {
+    max-width: 960px;
+}
+
+.app-heading .eyebrow {
+    margin-top: .55em;
 }
 
 .list-row,
@@ -1089,7 +1110,15 @@ textarea:focus {
         grid-column: span 1;
     }
 
-    .app-heading,
+    .app-heading {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .app-heading .eyebrow {
+        margin-top: 0;
+    }
+
     .teacher-card-top,
     .profile-title,
     .list-row,
