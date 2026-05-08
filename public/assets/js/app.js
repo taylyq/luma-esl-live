@@ -27,3 +27,15 @@ document.querySelectorAll('.flash').forEach((flash) => {
         flash.style.transform = 'translate(-50%, -8px)';
     }, 2800);
 });
+
+const languageSelect = document.querySelector('[data-language-select]');
+if (languageSelect) {
+    const savedLanguage = localStorage.getItem('luma_language') || 'en';
+    languageSelect.value = savedLanguage;
+    document.documentElement.lang = savedLanguage;
+
+    languageSelect.addEventListener('change', () => {
+        localStorage.setItem('luma_language', languageSelect.value);
+        document.documentElement.lang = languageSelect.value;
+    });
+}

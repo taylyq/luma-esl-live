@@ -161,22 +161,55 @@ textarea {
 }
 
 .nav-account {
-    display: grid;
-    gap: 2px;
-    justify-items: end;
-    max-width: 190px;
-    padding: 9px 12px;
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    background: rgba(255, 255, 255, .72);
+    position: relative;
     color: var(--ink);
-    line-height: 1.15;
+}
+
+.nav-account summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    cursor: pointer;
+}
+
+.nav-account summary::-webkit-details-marker {
+    display: none;
+}
+
+.nav-account summary::after {
+    content: "⌄";
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.nav-account[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.nav-account-menu {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    z-index: 30;
+    display: grid;
+    gap: 12px;
+    min-width: 230px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background: rgba(255, 253, 248, .98);
+    box-shadow: var(--shadow);
+    text-align: center;
 }
 
 .nav-user-name {
     max-width: 100%;
     overflow: hidden;
-    font-size: 13px;
+    color: var(--ink);
+    font-size: 18px;
     font-weight: 800;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -196,8 +229,23 @@ textarea {
 }
 
 .nav-account .link-button {
-    font-size: 12px;
+    color: var(--ink);
+    font-size: 16px;
     font-weight: 800;
+}
+
+.language-picker {
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    text-align: left;
+}
+
+.language-picker select {
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 12px;
+    background: #fff;
 }
 
 .link-button,
@@ -1311,6 +1359,13 @@ textarea:focus {
 
     .site-nav.open {
         display: flex;
+    }
+
+    .nav-account-menu {
+        position: static;
+        margin-top: 12px;
+        width: 100%;
+        box-shadow: none;
     }
 
     .hero {

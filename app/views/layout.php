@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/app.css?v=20260508-calendar-passed">
+    <link rel="stylesheet" href="/assets/css/app.css?v=20260509-account-menu">
 </head>
 <body>
     <header class="site-header">
@@ -33,14 +33,25 @@
                 <?php if ($user['role'] === 'admin'): ?>
                     <a href="/admin">Admin</a>
                 <?php endif; ?>
-                <div class="nav-account" title="Signed in as <?= e($user['email']) ?>">
-                    <div class="nav-user-name"><?= e($user['name']) ?></div>
-                    <div class="nav-user-role"><?= e(ucfirst($user['role'])) ?></div>
-                    <form action="/logout" method="post" class="nav-form">
-                        <input type="hidden" name="_token" value="<?= csrf_token() ?>">
-                        <button class="link-button" type="submit">Sign out</button>
-                    </form>
-                </div>
+                <details class="nav-account" title="Signed in as <?= e($user['email']) ?>">
+                    <summary>
+                        <span class="nav-user-role"><?= e(ucfirst($user['role'])) ?></span>
+                    </summary>
+                    <div class="nav-account-menu">
+                        <strong class="nav-user-name"><?= e($user['name']) ?></strong>
+                        <form action="/logout" method="post" class="nav-form">
+                            <input type="hidden" name="_token" value="<?= csrf_token() ?>">
+                            <button class="link-button" type="submit">Sign out</button>
+                        </form>
+                        <label class="language-picker">Language
+                            <select data-language-select>
+                                <option value="en">English</option>
+                                <option value="vi">Vietnamese</option>
+                                <option value="es">Spanish</option>
+                            </select>
+                        </label>
+                    </div>
+                </details>
             <?php else: ?>
                 <a href="/login">Sign in</a>
                 <a class="button button-dark" href="/register">Get started</a>
