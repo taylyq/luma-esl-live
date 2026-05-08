@@ -8,13 +8,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body>
     <header class="site-header">
-        <a class="brand" href="/">
-            <span class="brand-mark"></span>
-            <span><?= e(config('app_name')) ?></span>
+        <a class="brand" href="/" aria-label="<?= e(config('app_name')) ?> home">
+            <span class="brand-mark" aria-hidden="true"><img src="/assets/img/brand-mark.svg" alt=""></span>
+            <span class="brand-copy">
+                <span class="brand-name"><?= e(config('app_name')) ?></span>
+                <span class="brand-slogan">Speak first. Join with confidence.</span>
+            </span>
         </a>
         <button class="nav-toggle" type="button" data-nav-toggle aria-label="Open navigation">☰</button>
         <nav class="site-nav" data-nav>
@@ -58,7 +62,7 @@
     <footer class="site-footer">
         <div>
             <strong><?= e(config('app_name')) ?></strong>
-            <span>Verified ESL educators, calm booking, and Zoom classes that feel easy to join.</span>
+            <span>Speak first. Join with confidence. Verified ESL educators, calm booking, and Zoom classes that feel easy to enter.</span>
         </div>
         <div class="footer-links">
             <a href="/teachers">Browse</a>

@@ -2,7 +2,7 @@
     <div class="hero-copy">
         <span class="eyebrow">Verified online English classes</span>
         <h1>Find an English teacher who fits your life.</h1>
-        <p>Browse polished educator profiles, message before you commit, and join approved Zoom classes from one calm dashboard.</p>
+        <p>Speak first. Join with confidence. Browse polished educator profiles, message before you commit, and enter approved Zoom classes from one calm dashboard.</p>
         <div class="hero-actions">
             <a class="button button-dark" href="/teachers">Browse teachers</a>
             <a class="button button-light" href="/register">Become a teacher</a>
