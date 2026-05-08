@@ -72,7 +72,7 @@ $calendarSections = [
                                         <div class="tag-row">
                                             <span><?= e($class['teacher_name']) ?></span>
                                             <?php if ((int) $class['verified'] === 1): ?><span>Verified</span><?php endif; ?>
-                                            <span>$<?= number_format((float) $class['price']) ?></span>
+                                            <span><?= e(format_class_price($class)) ?></span>
                                             <?php if ($hasPassed): ?>
                                                 <span>Class passed</span>
                                             <?php else: ?>

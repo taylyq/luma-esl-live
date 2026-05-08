@@ -227,3 +227,48 @@ function insert_ignore_sql(string $table, array $columns): string
 
     return "INSERT IGNORE INTO {$table} ({$columnList}) VALUES ({$placeholders})";
 }
+
+function format_class_price(array $class): string
+{
+    $currency = strtoupper((string) ($class['price_currency'] ?? 'USD'));
+    $price = (float) ($class['price'] ?? 0);
+
+    if ($currency === 'FREE' || $price <= 0) {
+        return 'Free';
+    }
+
+    if ($currency === 'VND') {
+        return number_format($price, 0) . ' VND';
+    }
+
+    return '$' . number_format($price, 2);
+}
+
+function ensure_class_price_currency_column(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+
+    if (db_driver() === 'sqlite') {
+        $columns = db()->query('PRAGMA table_info(class_listings)')->fetchAll();
+        foreach ($columns as $column) {
+            if (($column['name'] ?? '') === 'price_currency') {
+                $checked = true;
+                return;
+            }
+        }
+
+        db()->exec("ALTER TABLE class_listings ADD COLUMN price_currency TEXT NOT NULL DEFAULT 'USD'");
+        $checked = true;
+        return;
+    }
+
+    $statement = db()->query("SHOW COLUMNS FROM class_listings LIKE 'price_currency'");
+    if (!$statement->fetch()) {
+        db()->exec("ALTER TABLE class_listings ADD COLUMN price_currency VARCHAR(10) NOT NULL DEFAULT 'USD' AFTER price");
+    }
+
+    $checked = true;
+}

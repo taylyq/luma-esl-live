@@ -56,7 +56,7 @@
                 <p><?= e($class['description']) ?></p>
                 <div class="meta-row">
                     <span><?= date('M j, g:i A', strtotime($class['start_time'])) ?></span>
-                    <span>$<?= number_format((float) $class['price']) ?></span>
+                    <span><?= e(format_class_price($class)) ?></span>
                 </div>
                 <?php if (current_user() && current_user()['role'] === 'student'): ?>
                     <form method="post" action="/classes/request" class="form-stack">

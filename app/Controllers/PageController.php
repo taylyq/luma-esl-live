@@ -24,6 +24,8 @@ final class PageController
 
     public function pricing(): void
     {
+        ensure_class_price_currency_column();
+
         $statement = db()->query(
             "SELECT cl.*, ep.id AS educator_id, ep.headline, ep.profile_photo, ep.hourly_rate, ep.verified,
                     u.id AS educator_user_id, u.name AS teacher_name,

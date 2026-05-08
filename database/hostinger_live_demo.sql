@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS class_listings (
     english_level VARCHAR(80) NOT NULL,
     capacity INT UNSIGNED NOT NULL DEFAULT 1,
     price DECIMAL(8,2) NOT NULL DEFAULT 0,
+    price_currency VARCHAR(10) NOT NULL DEFAULT 'USD',
     zoom_link VARCHAR(255) NULL,
     start_time DATETIME NOT NULL,
     end_time DATETIME NOT NULL,

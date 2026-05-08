@@ -54,6 +54,7 @@ final class TeacherController
     {
         $id = (int) ($_GET['id'] ?? 0);
         $teacher = $this->teacher($id);
+        ensure_class_price_currency_column();
 
         if (!$teacher) {
             http_response_code(404);

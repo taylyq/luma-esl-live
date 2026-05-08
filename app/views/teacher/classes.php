@@ -12,7 +12,8 @@
             <label>Class type<select name="class_type"><option value="private">Private</option><option value="group">Group</option></select></label>
             <label>Level<input name="english_level" value="Intermediate" required></label>
             <label>Capacity<input name="capacity" type="number" min="1" value="4"></label>
-            <label>Price<input name="price" type="number" min="0" step="1" value="15"></label>
+            <label>Price type<select name="price_currency"><option value="FREE">Free</option><option value="USD" selected>USD</option><option value="VND">VND</option></select></label>
+            <label>Price<input name="price" type="number" min="0" step="1" value="15" placeholder="Use 0 for free classes"></label>
             <label>Start time<input name="start_time" type="datetime-local" required></label>
             <label>Duration minutes<input name="duration" type="number" min="15" value="60"></label>
             <label>Zoom link<input name="zoom_link" placeholder="Hidden until approval"></label>
@@ -24,7 +25,7 @@
             <?php foreach ($classes as $class): ?>
                 <div class="list-row">
                     <div><strong><?= e($class['title']) ?></strong><span><?= date('M j, g:i A', strtotime($class['start_time'])) ?> · <?= e($class['english_level']) ?></span></div>
-                    <span>$<?= number_format((float) $class['price']) ?></span>
+                    <span><?= e(format_class_price($class)) ?></span>
                 </div>
             <?php endforeach; ?>
         </article>

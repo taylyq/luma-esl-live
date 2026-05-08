@@ -76,6 +76,7 @@ CREATE TABLE class_listings (
     english_level TEXT NOT NULL,
     capacity INTEGER NOT NULL DEFAULT 1,
     price REAL NOT NULL DEFAULT 0,
+    price_currency TEXT NOT NULL DEFAULT 'USD',
     zoom_link TEXT NULL,
     start_time TEXT NOT NULL,
     end_time TEXT NOT NULL,

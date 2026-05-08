@@ -10,6 +10,7 @@ final class ClassController
     {
         $user = require_auth('educator');
         $profile = $this->profile($user);
+        ensure_class_price_currency_column();
 
         $classes = db()->prepare('SELECT * FROM class_listings WHERE educator_id = ? ORDER BY start_time DESC');
         $classes->execute([$profile['id']]);
@@ -39,10 +40,17 @@ final class ClassController
         $start = trim((string) $_POST['start_time']);
         $duration = max(15, (int) ($_POST['duration'] ?? 60));
         $end = date('Y-m-d H:i:s', strtotime($start) + ($duration * 60));
+        $priceCurrency = strtoupper((string) ($_POST['price_currency'] ?? 'USD'));
+        if (!in_array($priceCurrency, ['FREE', 'USD', 'VND'], true)) {
+            $priceCurrency = 'USD';
+        }
+        $price = $priceCurrency === 'FREE' ? 0 : max(0, (float) $_POST['price']);
+
+        ensure_class_price_currency_column();
 
         $statement = db()->prepare(
-            'INSERT INTO class_listings (educator_id, title, description, class_type, english_level, capacity, price, zoom_link, start_time, end_time, recurrence_rule, status)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO class_listings (educator_id, title, description, class_type, english_level, capacity, price, price_currency, zoom_link, start_time, end_time, recurrence_rule, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $statement->execute([
             $profile['id'],
@@ -51,7 +59,8 @@ final class ClassController
             (string) $_POST['class_type'],
             trim((string) $_POST['english_level']),
             max(1, (int) $_POST['capacity']),
-            max(0, (float) $_POST['price']),
+            $price,
+            $priceCurrency,
             trim((string) $_POST['zoom_link']),
             date('Y-m-d H:i:s', strtotime($start)),
             $end,
