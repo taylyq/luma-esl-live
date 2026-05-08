@@ -25,7 +25,14 @@
             <?php foreach ($classes as $class): ?>
                 <div class="list-row">
                     <div><strong><?= e($class['title']) ?></strong><span><?= date('M j, g:i A', strtotime($class['start_time'])) ?> · <?= e($class['english_level']) ?></span></div>
-                    <span><?= e(format_class_price($class)) ?></span>
+                    <div class="class-row-actions">
+                        <span><?= e(format_class_price($class)) ?></span>
+                        <?php if (strtotime($class['start_time']) >= time()): ?>
+                            <a class="button button-light button-small" href="/teacher/classes/edit?id=<?= (int) $class['id'] ?>">Edit</a>
+                        <?php else: ?>
+                            <span class="status passed">Passed</span>
+                        <?php endif; ?>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </article>

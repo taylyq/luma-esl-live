@@ -904,6 +904,13 @@ textarea:focus {
     display: block;
 }
 
+.class-row-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
 .status.pending {
     background: #fff7e8;
     color: var(--amber);
@@ -1363,6 +1370,10 @@ textarea:focus {
     .site-footer {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .class-row-actions {
+        justify-content: flex-start;
     }
 
     .footer-contact {

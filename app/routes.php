@@ -16,6 +16,7 @@ return [
         '/messages' => ['ChatController', 'index'],
         '/teacher/profile' => ['TeacherController', 'edit'],
         '/teacher/classes' => ['ClassController', 'index'],
+        '/teacher/classes/edit' => ['ClassController', 'edit'],
         '/admin' => ['AdminController', 'index'],
     ],
     'POST' => [
@@ -33,6 +34,7 @@ return [
         '/classes/request' => ['ClassController', 'requestJoin'],
         '/teacher/profile' => ['TeacherController', 'update'],
         '/teacher/classes' => ['ClassController', 'store'],
+        '/teacher/classes/update' => ['ClassController', 'update'],
         '/teacher/requests/update' => ['ClassController', 'updateRequest'],
         '/admin/admins/create' => ['AdminController', 'createAdmin'],
         '/admin/students/update' => ['AdminController', 'updateStudent'],
