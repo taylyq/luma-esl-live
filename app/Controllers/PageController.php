@@ -33,15 +33,21 @@ final class PageController
              JOIN users u ON u.id = ep.user_id
              WHERE cl.status = 'published'
                 AND ep.approval_status = 'approved'
-                AND cl.start_time >= CURRENT_TIMESTAMP
-                AND cl.start_time < DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 7 DAY)
+                AND cl.start_time >= CURRENT_DATE
+                AND cl.start_time < DATE_ADD(CURRENT_DATE, INTERVAL 7 DAY)
              ORDER BY cl.start_time ASC"
         );
 
-        $classesByDay = [];
+        $classesByDay = [
+            'upcoming' => [],
+            'passed' => [],
+        ];
+        $now = time();
         foreach ($statement->fetchAll() as $class) {
             $dayKey = date('Y-m-d', strtotime($class['start_time']));
-            $classesByDay[$dayKey][] = $class;
+            $endTime = !empty($class['end_time']) ? strtotime($class['end_time']) : strtotime($class['start_time']);
+            $section = $endTime < $now ? 'passed' : 'upcoming';
+            $classesByDay[$section][$dayKey][] = $class;
         }
 
         view('pricing', [
