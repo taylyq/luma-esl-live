@@ -58,8 +58,9 @@ textarea {
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-    min-height: 72px;
-    padding: 12px clamp(20px, 4vw, 56px);
+    height: 64px;
+    min-height: 64px;
+    padding: 8px clamp(20px, 4vw, 56px);
     background: rgba(251, 247, 239, .86);
     border-bottom: 1px solid rgba(234, 223, 206, .78);
     backdrop-filter: blur(18px);
@@ -78,14 +79,20 @@ textarea {
 
 .brand {
     flex: 0 0 auto;
-    gap: 10px;
+    gap: 8px;
+    max-width: 190px;
+    height: 44px;
+    overflow: hidden;
 }
 
 .brand-icon {
-    width: 34px;
-    height: 34px;
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    max-width: 24px;
+    max-height: 24px;
     object-fit: contain;
-    filter: drop-shadow(0 6px 14px rgba(217, 142, 34, .18));
+    filter: drop-shadow(0 4px 10px rgba(217, 142, 34, .16));
 }
 
 .brand-copy,
@@ -96,7 +103,7 @@ textarea {
 
 .brand-name {
     color: var(--blue);
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 900;
     letter-spacing: 0;
     line-height: .95;
@@ -109,9 +116,9 @@ textarea {
 }
 
 .brand-slogan {
-    margin-top: 4px;
+    margin-top: 2px;
     color: var(--blue);
-    font-size: 11px;
+    font-size: 9px;
     font-weight: 700;
     letter-spacing: 0;
     line-height: 1;
@@ -202,7 +209,7 @@ textarea {
 
 .nav-toggle {
     display: none;
-    font-size: 22px;
+    font-size: 18px;
 }
 
 .button {
@@ -1093,9 +1100,10 @@ textarea:focus {
 @media (max-width: 720px) {
     .site-header {
         align-items: center;
-        min-height: 64px;
-        padding-top: 10px;
-        padding-bottom: 10px;
+        height: 56px;
+        min-height: 56px;
+        padding-top: 6px;
+        padding-bottom: 6px;
     }
 
     .nav-toggle {
@@ -1107,12 +1115,15 @@ textarea:focus {
     }
 
     .brand-icon {
-        width: 28px;
-        height: 28px;
+        flex-basis: 20px;
+        width: 20px;
+        height: 20px;
+        max-width: 20px;
+        max-height: 20px;
     }
 
     .brand-name {
-        font-size: 18px;
+        font-size: 16px;
     }
 
     .site-nav {
