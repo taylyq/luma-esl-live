@@ -79,19 +79,19 @@ textarea {
 
 .brand {
     flex: 0 0 auto;
-    width: 156px;
-    height: 43px;
-    max-width: 156px;
-    max-height: 43px;
+    width: 118px;
+    height: 32px;
+    max-width: 118px;
+    max-height: 32px;
     overflow: hidden;
 }
 
 .brand-logo {
     display: block;
-    width: 156px;
-    height: 43px;
-    max-width: 156px;
-    max-height: 43px;
+    width: 118px;
+    height: 32px;
+    max-width: 118px;
+    max-height: 32px;
     object-fit: contain;
 }
 
@@ -1083,10 +1083,10 @@ textarea:focus {
 
     .brand,
     .brand-logo {
-        width: 132px;
-        height: 36px;
-        max-width: 132px;
-        max-height: 36px;
+        width: 104px;
+        height: 28px;
+        max-width: 104px;
+        max-height: 28px;
     }
 
     .site-nav {
