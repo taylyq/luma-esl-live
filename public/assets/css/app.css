@@ -411,6 +411,118 @@ textarea {
     margin-bottom: 26px;
 }
 
+.calendar-shell {
+    padding-top: 12px;
+}
+
+.calendar-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.calendar-list {
+    display: grid;
+    gap: 16px;
+}
+
+.calendar-day {
+    display: grid;
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.calendar-date {
+    position: sticky;
+    top: 90px;
+    padding: 18px;
+    background: rgba(255, 255, 255, .64);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+}
+
+.calendar-date span,
+.calendar-meta {
+    color: var(--muted);
+}
+
+.calendar-date span {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.calendar-date strong {
+    display: block;
+    color: var(--graphite);
+    font-size: 24px;
+    line-height: 1.1;
+}
+
+.calendar-classes {
+    display: grid;
+    gap: 12px;
+}
+
+.calendar-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: center;
+    padding: 18px;
+    background: rgba(255, 255, 255, .82);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.calendar-class-main {
+    display: grid;
+    grid-template-columns: 74px minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.calendar-teacher-photo {
+    width: 74px;
+    height: 74px;
+    border-radius: 18px;
+    object-fit: cover;
+}
+
+.calendar-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.calendar-card h3 {
+    margin: 6px 0 4px;
+    color: var(--graphite);
+}
+
+.calendar-card p {
+    margin: 0 0 12px;
+    color: var(--muted);
+}
+
+.calendar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.calendar-actions form {
+    margin: 0;
+}
+
 .section-heading h2,
 .split-band h2,
 .trust-band h2,
@@ -1084,6 +1196,19 @@ textarea:focus {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .calendar-day,
+    .calendar-card {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-date {
+        position: static;
+    }
+
+    .calendar-actions {
+        justify-content: flex-start;
+    }
+
     .filters {
         position: static;
     }
@@ -1171,6 +1296,21 @@ textarea:focus {
     .role-picker,
     .form-grid {
         grid-template-columns: 1fr;
+    }
+
+    .calendar-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .calendar-class-main {
+        grid-template-columns: 56px minmax(0, 1fr);
+    }
+
+    .calendar-teacher-photo {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
     }
 
     .span-2 {

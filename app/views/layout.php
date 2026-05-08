@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/app.css?v=20260508-header-logo">
+    <link rel="stylesheet" href="/assets/css/app.css?v=20260508-calendar">
 </head>
 <body>
     <header class="site-header">
@@ -23,7 +23,7 @@
         <button class="nav-toggle" type="button" data-nav-toggle aria-label="Open navigation">☰</button>
         <nav class="site-nav" data-nav>
             <a href="/teachers" class="<?= route_is('/teachers') ? 'active' : '' ?>">Teachers</a>
-            <a href="/pricing" class="<?= route_is('/pricing') ? 'active' : '' ?>">Pricing</a>
+            <a href="/calendar" class="<?= route_is('/calendar') || route_is('/pricing') ? 'active' : '' ?>">Calendar</a>
             <?php if ($user): ?>
                 <a href="/dashboard" class="<?= route_is('/dashboard') ? 'active' : '' ?>">Dashboard</a>
                 <a href="/messages" class="<?= route_is('/messages') ? 'active' : '' ?>">Messages<?php if ($unreadCount > 0): ?><span class="nav-badge"><?= $unreadCount ?></span><?php endif; ?></a>
@@ -66,7 +66,7 @@
         </div>
         <div class="footer-links">
             <a href="/teachers">Browse</a>
-            <a href="/pricing">Pricing</a>
+            <a href="/calendar">Calendar</a>
             <a href="/register">Become a teacher</a>
         </div>
     </footer>
