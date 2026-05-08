@@ -1,16 +1,18 @@
 :root {
-    --bg: #f5f5f3;
-    --surface: #ffffff;
-    --surface-2: #f9f9f7;
-    --ink: #171717;
-    --muted: #6d726f;
-    --line: #e5e4df;
-    --blue: #2268ff;
-    --graphite: #262a2f;
-    --green: #0f8f68;
-    --amber: #a66710;
+    --bg: #fbf7ef;
+    --surface: #fffdf8;
+    --surface-2: #fff8ec;
+    --ink: #17202a;
+    --muted: #6d6f70;
+    --line: #eadfce;
+    --blue: #0b5488;
+    --graphite: #0a3557;
+    --gold: #f6b744;
+    --gold-deep: #d98e22;
+    --green: #14796f;
+    --amber: #c77817;
     --red: #b33b35;
-    --shadow: 0 20px 60px rgba(21, 25, 29, .08);
+    --shadow: 0 20px 60px rgba(52, 42, 28, .1);
     --radius: 22px;
     --radius-sm: 14px;
 }
@@ -57,8 +59,8 @@ textarea {
     justify-content: space-between;
     gap: 24px;
     padding: 18px clamp(20px, 4vw, 56px);
-    background: rgba(245, 245, 243, .82);
-    border-bottom: 1px solid rgba(229, 228, 223, .7);
+    background: rgba(251, 247, 239, .86);
+    border-bottom: 1px solid rgba(234, 223, 206, .78);
     backdrop-filter: blur(18px);
 }
 
@@ -74,44 +76,13 @@ textarea {
 }
 
 .brand {
-    gap: 11px;
-    font-weight: 800;
+    flex: 0 0 auto;
 }
 
-.brand-mark {
-    display: inline-grid;
-    width: 38px;
-    height: 38px;
-    place-items: center;
-    overflow: hidden;
-    border-radius: 13px;
-    box-shadow: 0 12px 30px rgba(21, 25, 29, .16);
-}
-
-.brand-mark img {
-    width: 100%;
-    height: 100%;
-}
-
-.brand-copy,
-.brand-name,
-.brand-slogan {
-    display: block;
-}
-
-.brand-name {
-    color: var(--ink);
-    font-size: 16px;
-    line-height: 1.05;
-}
-
-.brand-slogan {
-    margin-top: 3px;
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0;
-    line-height: 1.1;
+.brand-logo {
+    width: clamp(154px, 17vw, 232px);
+    height: auto;
+    filter: drop-shadow(0 8px 18px rgba(10, 53, 87, .08));
 }
 
 .site-nav {
@@ -134,8 +105,8 @@ textarea {
     place-items: center;
     padding: 0 6px;
     border-radius: 999px;
-    background: var(--blue);
-    color: #fff;
+    background: var(--gold);
+    color: var(--graphite);
     font-size: 11px;
     font-weight: 800;
 }
@@ -176,8 +147,8 @@ textarea {
     align-items: center;
     padding: 3px 8px;
     border-radius: 999px;
-    background: var(--blue);
-    color: #fff;
+    background: var(--gold);
+    color: var(--graphite);
     font-size: 11px;
     font-weight: 900;
     letter-spacing: 0;
@@ -220,15 +191,15 @@ textarea {
 }
 
 .button-dark {
-    background: var(--ink);
+    background: var(--blue);
     color: #fff;
-    box-shadow: 0 12px 30px rgba(23, 23, 23, .16);
+    box-shadow: 0 12px 30px rgba(11, 84, 136, .2);
 }
 
 .button-light {
-    background: var(--surface);
-    border-color: var(--line);
-    color: var(--ink);
+    background: #fffaf0;
+    border-color: rgba(246, 183, 68, .42);
+    color: var(--graphite);
 }
 
 .full {
@@ -479,8 +450,8 @@ textarea {
     min-height: 28px;
     padding: 0 10px;
     border-radius: 999px;
-    background: #eef4ff;
-    color: #1852cc;
+    background: #e9f3fb;
+    color: var(--blue);
     font-size: 12px;
     font-weight: 800;
     white-space: nowrap;
@@ -531,7 +502,7 @@ textarea {
     height: 30px;
     margin-bottom: 10px;
     border-radius: 50%;
-    background: var(--ink);
+    background: var(--blue);
     color: #fff;
     font-weight: 800;
 }
@@ -788,7 +759,7 @@ textarea:focus {
 .progress span {
     display: block;
     height: 100%;
-    background: linear-gradient(90deg, var(--blue), var(--green));
+    background: linear-gradient(90deg, var(--gold), var(--blue));
     border-radius: inherit;
 }
 
@@ -1096,8 +1067,8 @@ textarea:focus {
         display: block;
     }
 
-    .brand-slogan {
-        display: none;
+    .brand-logo {
+        width: 148px;
     }
 
     .site-nav {
