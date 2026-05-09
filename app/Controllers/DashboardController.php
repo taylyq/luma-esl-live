@@ -16,8 +16,11 @@ final class DashboardController
 
         if ($user['role'] === 'educator') {
             $profile = $this->educatorProfile((int) $user['id']);
-            $classes = db()->prepare("SELECT * FROM class_listings WHERE educator_id = ? ORDER BY start_time LIMIT 5");
+            $classes = db()->prepare("SELECT * FROM class_listings WHERE educator_id = ? AND start_time >= CURRENT_TIMESTAMP ORDER BY start_time LIMIT 5");
             $classes->execute([$profile['id']]);
+
+            $passedClasses = db()->prepare("SELECT * FROM class_listings WHERE educator_id = ? AND end_time < CURRENT_TIMESTAMP ORDER BY start_time DESC LIMIT 5");
+            $passedClasses->execute([$profile['id']]);
 
             $requests = db()->prepare(
                 "SELECT cr.*, cl.title, u.name AS student_name
@@ -46,6 +49,7 @@ final class DashboardController
                 'title' => 'Teacher dashboard',
                 'profile' => $profile,
                 'classes' => $classes->fetchAll(),
+                'passedClasses' => $passedClasses->fetchAll(),
                 'requests' => $requests->fetchAll(),
                 'messages' => $messages->fetchAll(),
             ]);
@@ -58,11 +62,23 @@ final class DashboardController
              JOIN class_listings cl ON cl.id = e.class_id
              JOIN educator_profiles ep ON ep.id = cl.educator_id
              JOIN users u ON u.id = ep.user_id
-             WHERE e.student_id = ?
+             WHERE e.student_id = ? AND cl.start_time >= CURRENT_TIMESTAMP
              ORDER BY cl.start_time
              LIMIT 5"
         );
         $classes->execute([$user['id']]);
+
+        $passedClasses = db()->prepare(
+            "SELECT e.*, cl.title, cl.start_time, cl.end_time, cl.zoom_link, u.name AS teacher_name
+             FROM enrollments e
+             JOIN class_listings cl ON cl.id = e.class_id
+             JOIN educator_profiles ep ON ep.id = cl.educator_id
+             JOIN users u ON u.id = ep.user_id
+             WHERE e.student_id = ? AND cl.end_time < CURRENT_TIMESTAMP
+             ORDER BY cl.start_time DESC
+             LIMIT 5"
+        );
+        $passedClasses->execute([$user['id']]);
 
         $requests = db()->prepare(
             "SELECT cr.*, cl.title, u.name AS teacher_name
@@ -92,6 +108,7 @@ final class DashboardController
         view('dashboards/student', [
             'title' => 'Student dashboard',
             'classes' => $classes->fetchAll(),
+            'passedClasses' => $passedClasses->fetchAll(),
             'requests' => $requests->fetchAll(),
             'messages' => $messages->fetchAll(),
         ]);

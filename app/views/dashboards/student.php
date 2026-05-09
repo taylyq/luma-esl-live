@@ -15,6 +15,16 @@
             <?php endforeach; ?>
             <?php if (!$classes): ?><div class="empty-state small">No approved classes yet.</div><?php endif; ?>
         </article>
+        <article class="panel large">
+            <h2>Classes taken</h2>
+            <?php foreach ($passedClasses as $class): ?>
+                <div class="list-row">
+                    <div><strong><?= e($class['title']) ?></strong><span><?= e($class['teacher_name']) ?> · <?= date('M j, g:i A', strtotime($class['start_time'])) ?></span></div>
+                    <span class="status passed">Passed</span>
+                </div>
+            <?php endforeach; ?>
+            <?php if (!$passedClasses): ?><div class="empty-state small">No completed classes yet.</div><?php endif; ?>
+        </article>
         <article class="panel">
             <h2>Requests</h2>
             <?php foreach ($requests as $request): ?>

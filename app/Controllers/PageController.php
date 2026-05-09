@@ -25,11 +25,14 @@ final class PageController
     public function pricing(): void
     {
         ensure_class_price_currency_column();
+        $viewer = current_user();
+        $viewerId = (int) ($viewer['id'] ?? 0);
 
-        $statement = db()->query(
+        $statement = db()->prepare(
             "SELECT cl.*, ep.id AS educator_id, ep.headline, ep.profile_photo, ep.hourly_rate, ep.verified,
                     u.id AS educator_user_id, u.name AS teacher_name,
-                    COALESCE((SELECT COUNT(*) FROM enrollments e WHERE e.class_id = cl.id), 0) AS enrolled_count
+                    COALESCE((SELECT COUNT(*) FROM enrollments e WHERE e.class_id = cl.id), 0) AS enrolled_count,
+                    EXISTS(SELECT 1 FROM enrollments own_e WHERE own_e.class_id = cl.id AND own_e.student_id = ?) AS viewer_enrolled
              FROM class_listings cl
              JOIN educator_profiles ep ON ep.id = cl.educator_id
              JOIN users u ON u.id = ep.user_id
@@ -39,6 +42,7 @@ final class PageController
                 AND cl.start_time < DATE_ADD(CURRENT_DATE, INTERVAL 7 DAY)
              ORDER BY cl.start_time ASC"
         );
+        $statement->execute([$viewerId]);
 
         $classesByDay = [
             'upcoming' => [],
@@ -49,6 +53,9 @@ final class PageController
             $dayKey = date('Y-m-d', strtotime($class['start_time']));
             $endTime = !empty($class['end_time']) ? strtotime($class['end_time']) : strtotime($class['start_time']);
             $section = $endTime < $now ? 'passed' : 'upcoming';
+            if ($section === 'passed' && !$this->canViewPassedClass($viewer, $class)) {
+                continue;
+            }
             $classesByDay[$section][$dayKey][] = $class;
         }
 
@@ -57,5 +64,22 @@ final class PageController
             'classesByDay' => $classesByDay,
             'startDate' => new \DateTimeImmutable('today'),
         ]);
+    }
+
+    private function canViewPassedClass(?array $viewer, array $class): bool
+    {
+        if (!$viewer) {
+            return false;
+        }
+
+        if ($viewer['role'] === 'admin') {
+            return true;
+        }
+
+        if ($viewer['role'] === 'educator') {
+            return (int) $viewer['id'] === (int) $class['educator_user_id'];
+        }
+
+        return $viewer['role'] === 'student' && (int) ($class['viewer_enrolled'] ?? 0) === 1;
     }
 }
