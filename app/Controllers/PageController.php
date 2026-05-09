@@ -38,8 +38,10 @@ final class PageController
              JOIN users u ON u.id = ep.user_id
              WHERE cl.status = 'published'
                 AND ep.approval_status = 'approved'
-                AND cl.start_time >= CURRENT_DATE
-                AND cl.start_time < DATE_ADD(CURRENT_DATE, INTERVAL 7 DAY)
+                AND (
+                    (cl.start_time >= CURRENT_DATE AND cl.start_time < DATE_ADD(CURRENT_DATE, INTERVAL 7 DAY))
+                    OR cl.end_time < CURRENT_TIMESTAMP
+                )
              ORDER BY cl.start_time ASC"
         );
         $statement->execute([$viewerId]);

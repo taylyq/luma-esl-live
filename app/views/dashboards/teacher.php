@@ -22,14 +22,14 @@
             <?php if (!$classes): ?><div class="empty-state small">No upcoming classes.</div><?php endif; ?>
         </article>
         <article class="panel large">
-            <h2>Classes taught</h2>
+            <h2>History</h2>
             <?php foreach ($passedClasses as $class): ?>
                 <div class="list-row">
                     <div><strong><?= e($class['title']) ?></strong><span><?= date('M j, g:i A', strtotime($class['start_time'])) ?> · <?= e($class['class_type']) ?></span></div>
                     <span class="status passed">Passed</span>
                 </div>
             <?php endforeach; ?>
-            <?php if (!$passedClasses): ?><div class="empty-state small">No passed classes yet.</div><?php endif; ?>
+            <?php if (!$passedClasses): ?><div class="empty-state small">No class history yet.</div><?php endif; ?>
         </article>
         <article class="panel">
             <h2>New requests</h2>

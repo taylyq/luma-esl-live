@@ -5,16 +5,24 @@ for ($i = 0; $i < 7; $i++) {
     $date = $startDate->modify('+' . $i . ' days');
     $days[$date->format('Y-m-d')] = $date;
 }
+$historyDays = [];
+foreach (array_keys($classesByDay['passed'] ?? []) as $dayKey) {
+    $historyDays[$dayKey] = new DateTimeImmutable($dayKey);
+}
+krsort($historyDays);
+
 $calendarSections = [
     'upcoming' => [
         'eyebrow' => 'Next 7 days',
         'title' => 'Upcoming classes',
         'empty' => 'No upcoming classes yet.',
+        'days' => $days,
     ],
     'passed' => [
-        'eyebrow' => 'Already happened',
-        'title' => 'Passed classes',
-        'empty' => 'No classes have passed yet.',
+        'eyebrow' => 'History',
+        'title' => 'History',
+        'empty' => 'No class history yet.',
+        'days' => $historyDays,
     ],
 ];
 ?>
@@ -38,7 +46,11 @@ $calendarSections = [
         </div>
 
         <div class="calendar-list">
-            <?php foreach ($days as $key => $date): ?>
+            <?php if (!$section['days']): ?>
+                <div class="empty-state small"><?= e($section['empty']) ?></div>
+            <?php endif; ?>
+
+            <?php foreach ($section['days'] as $key => $date): ?>
                 <?php $classes = $classesByDay[$sectionKey][$key] ?? []; ?>
                 <section class="calendar-day">
                     <div class="calendar-date">
@@ -47,7 +59,7 @@ $calendarSections = [
                     </div>
 
                     <div class="calendar-classes">
-                        <?php if (!$classes): ?>
+                        <?php if (!$classes && $sectionKey !== 'passed'): ?>
                             <div class="empty-state small"><?= e($section['empty']) ?></div>
                         <?php endif; ?>
 
