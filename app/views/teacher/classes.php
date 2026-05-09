@@ -40,7 +40,7 @@
             <h2>Join requests</h2>
             <?php foreach ($requests as $request): ?>
                 <div class="approval-row">
-                    <div><strong><?= e($request['student_name']) ?></strong><span><?= e($request['title']) ?> · <?= e($request['status']) ?></span><p><?= e($request['message']) ?></p></div>
+                    <div><strong><?= e($request['student_name']) ?></strong><span>· <?= e($request['title']) ?> · <?= e($request['status']) ?></span><p><?= e($request['message']) ?></p></div>
                     <?php if ($request['status'] === 'pending'): ?>
                         <form method="post" action="/teacher/requests/update" class="inline-form">
                             <input type="hidden" name="_token" value="<?= csrf_token() ?>">
