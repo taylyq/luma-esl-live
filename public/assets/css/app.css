@@ -1340,6 +1340,47 @@ textarea:focus {
     border-bottom: 1px solid var(--line);
 }
 
+.admin-collapsible {
+    margin-top: 18px;
+}
+
+.admin-collapsible > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    list-style: none;
+    cursor: pointer;
+    color: var(--graphite);
+    font-size: 24px;
+    font-weight: 850;
+}
+
+.admin-collapsible > summary::-webkit-details-marker {
+    display: none;
+}
+
+.admin-collapsible > summary::after {
+    content: "⌄";
+    display: inline-grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 18px;
+    transition: transform .18s ease;
+}
+
+.admin-collapsible[open] > summary {
+    margin-bottom: 18px;
+}
+
+.admin-collapsible[open] > summary::after {
+    transform: rotate(180deg);
+}
+
 .admin-lesson-form {
     margin-bottom: 24px;
 }

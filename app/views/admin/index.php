@@ -30,8 +30,8 @@
             <?php endforeach; ?>
         </article>
     </div>
-    <article class="panel">
-        <h2>Lesson topics</h2>
+    <details class="panel admin-collapsible" open>
+        <summary>Lesson topics</summary>
         <form method="post" action="/admin/lessons/create" class="form-grid admin-lesson-form" enctype="multipart/form-data">
             <input type="hidden" name="_token" value="<?= csrf_token() ?>">
             <label>Unit<input name="unit" list="lesson-units" required></label>
@@ -65,9 +65,9 @@
             </div>
             <button class="button button-dark full top-gap" type="submit">Save all lesson topics</button>
         </form>
-    </article>
-    <article class="panel">
-        <h2>Recent message reports</h2>
+    </details>
+    <details class="panel admin-collapsible">
+        <summary>Recent message reports</summary>
         <?php foreach ($reports as $report): ?>
             <div class="list-row simple">
                 <strong><?= e($report['reporter_name']) ?> reported <?= e($report['reported_name']) ?></strong>
@@ -75,9 +75,9 @@
             </div>
         <?php endforeach; ?>
         <?php if (!$reports): ?><div class="empty-state small">No message reports yet.</div><?php endif; ?>
-    </article>
-    <article class="panel">
-        <h2>Student management</h2>
+    </details>
+    <details class="panel admin-collapsible">
+        <summary>Student management</summary>
         <?php foreach ($students as $student): ?>
             <form method="post" action="/admin/students/update" class="admin-row">
                 <input type="hidden" name="_token" value="<?= csrf_token() ?>">
@@ -97,9 +97,9 @@
                 <button class="button button-light" type="submit">Message student</button>
             </form>
         <?php endforeach; ?>
-    </article>
-    <article class="panel">
-        <h2>Educator review queue</h2>
+    </details>
+    <details class="panel admin-collapsible">
+        <summary>Educator management</summary>
         <?php foreach ($educators as $educator): ?>
             <form method="post" action="/admin/educators/update" class="admin-row">
                 <input type="hidden" name="_token" value="<?= csrf_token() ?>">
@@ -120,5 +120,5 @@
                 <button class="button button-light" type="submit">Message teacher</button>
             </form>
         <?php endforeach; ?>
-    </article>
+    </details>
 </section>
