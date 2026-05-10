@@ -38,7 +38,7 @@ $unitTopics = [
     'Play, sports, and hobbies' => [
         'Hobbies' => 'children hobbies art music',
         'Sports' => 'children sports field',
-        'Playing basketball outside' => 'children playing basketball outside',
+        'Playing basketball outside' => '/assets/img/lessons/playing-basketball-outside.jpeg',
         'At the park' => 'children park',
         'At the playground' => 'children playground',
         'Animals' => 'children animals learning',
@@ -68,7 +68,7 @@ foreach ($unitTopics as $unit => $topics) {
         $lessonTopics[] = [
             'unit' => $unit,
             'topic' => $topic,
-            'image' => 'https://source.unsplash.com/1200x850/?' . rawurlencode($query),
+            'image' => str_starts_with($query, '/') ? $query : 'https://source.unsplash.com/1200x850/?' . rawurlencode($query),
         ];
     }
 }
@@ -88,7 +88,7 @@ $firstLesson = $lessonTopics[0];
                 <h2><?= e($unit) ?></h2>
                 <div class="lesson-topic-list">
                     <?php foreach ($topics as $topic => $query): ?>
-                        <?php $image = 'https://source.unsplash.com/1200x850/?' . rawurlencode($query); ?>
+                        <?php $image = str_starts_with($query, '/') ? $query : 'https://source.unsplash.com/1200x850/?' . rawurlencode($query); ?>
                         <button
                             class="lesson-topic-button <?= $topic === $firstLesson['topic'] ? 'active' : '' ?>"
                             type="button"
