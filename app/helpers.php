@@ -272,3 +272,110 @@ function ensure_class_price_currency_column(): void
 
     $checked = true;
 }
+
+function default_lesson_topics(): array
+{
+    return [
+        ['Me and my world', 'Greetings', 'children greeting classroom'],
+        ['Me and my world', 'Introducing yourself', 'child introducing self english class'],
+        ['Me and my world', 'Numbers', 'children counting numbers'],
+        ['Me and my world', 'Colors', 'children learning colors'],
+        ['Me and my world', 'Shapes', 'children learning shapes'],
+        ['Me and my world', 'Family members', 'happy family children'],
+        ['Me and my world', 'Friends', 'children friends classroom'],
+        ['Me and my world', 'Body parts', 'kids body parts lesson'],
+        ['Me and my world', 'Feelings and emotions', 'children emotions flashcards'],
+        ['Me and my world', 'Clothes', 'children clothes lesson'],
+        ['Me and my world', 'Good manners', 'children saying thank you'],
+        ['Me and my world', 'Healthy habits', 'children healthy habits'],
+        ['School and home', 'Classroom objects', 'classroom objects school'],
+        ['School and home', 'School subjects', 'school subjects books'],
+        ['School and home', 'Days of the week', 'calendar days of week'],
+        ['School and home', 'Months of the year', 'calendar months learning'],
+        ['School and home', 'My house', 'family house children'],
+        ['School and home', 'Rooms in the house', 'children bedroom home'],
+        ['School and home', 'Furniture', 'home furniture kids'],
+        ['School and home', 'Technology for kids', 'children tablet learning'],
+        ['Food and daily life', 'Weather', 'children weather lesson'],
+        ['Food and daily life', 'Seasons', 'children seasons nature'],
+        ['Food and daily life', 'Food', 'kids food table'],
+        ['Food and daily life', 'Drinks', 'children drinking water juice'],
+        ['Food and daily life', 'Fruit and vegetables', 'fruit vegetables children'],
+        ['Food and daily life', 'At the supermarket', 'children supermarket shopping'],
+        ['Food and daily life', 'In the kitchen', 'children cooking kitchen'],
+        ['Food and daily life', 'Daily routines', 'child morning routine'],
+        ['Food and daily life', 'Telling the time', 'child clock learning time'],
+        ['Play, sports, and hobbies', 'Hobbies', 'children hobbies art music'],
+        ['Play, sports, and hobbies', 'Sports', 'children sports field'],
+        ['Play, sports, and hobbies', 'Playing basketball outside', '/assets/img/lessons/playing-basketball-outside.jpeg'],
+        ['Play, sports, and hobbies', 'At the park', 'children park'],
+        ['Play, sports, and hobbies', 'At the playground', 'children playground'],
+        ['Play, sports, and hobbies', 'Animals', 'children animals learning'],
+        ['Play, sports, and hobbies', 'Pets', 'child pet dog'],
+        ['Community and nature', 'Farm animals', 'children farm animals'],
+        ['Community and nature', 'Wild animals', 'children zoo wild animals'],
+        ['Community and nature', 'Jobs and occupations', 'children jobs occupations'],
+        ['Community and nature', 'Community places', 'community places town children'],
+        ['Community and nature', 'At the restaurant', 'family restaurant children'],
+        ['Community and nature', 'At the doctor', 'child doctor visit'],
+        ['Community and nature', 'Transportation', 'children transportation bus'],
+        ['Community and nature', 'Road safety', 'children road safety crosswalk'],
+        ['Community and nature', 'Holidays and celebrations', 'children holiday celebration'],
+        ['Community and nature', 'Birthday party', 'children birthday party'],
+        ['Community and nature', 'Nature', 'children nature forest'],
+        ['Community and nature', 'The beach', 'children beach'],
+        ['Community and nature', 'Camping', 'family camping children'],
+        ['Community and nature', 'Shopping', 'children shopping bags'],
+    ];
+}
+
+function lesson_image_url(string $image): string
+{
+    return str_starts_with($image, '/') || str_starts_with($image, 'http')
+        ? $image
+        : 'https://source.unsplash.com/1200x850/?' . rawurlencode($image);
+}
+
+function ensure_lesson_topics_table(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+
+    if (db_driver() === 'sqlite') {
+        db()->exec(
+            "CREATE TABLE IF NOT EXISTS lesson_topics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                unit TEXT NOT NULL,
+                topic TEXT NOT NULL UNIQUE,
+                image_url TEXT NOT NULL,
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )"
+        );
+    } else {
+        db()->exec(
+            "CREATE TABLE IF NOT EXISTS lesson_topics (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                unit VARCHAR(120) NOT NULL,
+                topic VARCHAR(190) NOT NULL UNIQUE,
+                image_url VARCHAR(255) NOT NULL,
+                sort_order INT NOT NULL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )"
+        );
+    }
+
+    $count = (int) db()->query('SELECT COUNT(*) FROM lesson_topics')->fetchColumn();
+    if ($count === 0) {
+        $insert = db()->prepare('INSERT INTO lesson_topics (unit, topic, image_url, sort_order) VALUES (?, ?, ?, ?)');
+        foreach (default_lesson_topics() as $index => [$unit, $topic, $image]) {
+            $insert->execute([$unit, $topic, $image, $index + 1]);
+        }
+    }
+
+    $checked = true;
+}

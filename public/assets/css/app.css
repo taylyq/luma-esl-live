@@ -679,16 +679,56 @@ body {
     line-height: 1;
 }
 
+.lesson-image-wrap {
+    position: relative;
+}
+
+.lesson-image-frame {
+    max-height: min(760px, calc(100vh - 220px));
+    overflow: auto;
+    border-top: 1px solid var(--line);
+    background: var(--surface-2);
+}
+
 .lesson-preview img {
     width: 100%;
-    aspect-ratio: 16 / 10;
-    object-fit: cover;
+    max-width: none;
+    object-fit: contain;
     background: var(--surface-2);
     transition: opacity .18s ease;
 }
 
 .lesson-preview img.loading {
     opacity: .36;
+}
+
+.lesson-nav-buttons {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    z-index: 2;
+    display: grid;
+    gap: 10px;
+    transform: translateY(-50%);
+}
+
+.lesson-nav-buttons button {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid rgba(234, 223, 206, .88);
+    border-radius: 999px;
+    background: rgba(255, 253, 248, .94);
+    color: var(--graphite);
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 900;
+    box-shadow: 0 12px 30px rgba(52, 42, 28, .13);
+}
+
+.lesson-nav-buttons button:hover {
+    background: #fff3d6;
 }
 
 .section-heading h2,
@@ -1283,6 +1323,39 @@ textarea:focus {
     border-bottom: 1px solid var(--line);
 }
 
+.admin-lesson-form {
+    margin-bottom: 24px;
+}
+
+.admin-lesson-list {
+    display: grid;
+    gap: 12px;
+}
+
+.admin-lesson-row {
+    display: grid;
+    grid-template-columns: 74px 1fr 1fr 90px 1.3fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+}
+
+.admin-lesson-row img {
+    width: 74px;
+    height: 74px;
+    border-radius: 14px;
+    object-fit: cover;
+}
+
+.admin-lesson-delete {
+    margin: -4px 0 8px 84px;
+}
+
+.danger {
+    color: var(--red);
+}
+
 .check {
     display: flex;
     grid-auto-flow: column;
@@ -1554,6 +1627,20 @@ textarea:focus {
 
     .admin-row {
         display: flex;
+    }
+
+    .admin-lesson-row {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-lesson-row img {
+        width: 100%;
+        height: auto;
+        max-height: 220px;
+    }
+
+    .admin-lesson-delete {
+        margin-left: 0;
     }
 
     .composer {

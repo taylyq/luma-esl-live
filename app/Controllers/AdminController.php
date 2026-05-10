@@ -9,6 +9,7 @@ final class AdminController
     public function index(): void
     {
         require_auth('admin');
+        ensure_lesson_topics_table();
 
         $stats = [
             'students' => db()->query("SELECT COUNT(*) AS total FROM users WHERE role = 'student'")->fetch()['total'],
@@ -40,6 +41,7 @@ final class AdminController
         )->fetchAll();
 
         $reports = $this->recentReports();
+        $lessonTopics = db()->query('SELECT * FROM lesson_topics ORDER BY sort_order ASC, id ASC')->fetchAll();
 
         view('admin/index', [
             'title' => 'Admin',
@@ -48,6 +50,7 @@ final class AdminController
             'admins' => $admins,
             'students' => $students,
             'reports' => $reports,
+            'lessonTopics' => $lessonTopics,
         ]);
     }
 
@@ -119,6 +122,115 @@ final class AdminController
         flash('success', 'Student updated.');
         redirect('/admin');
     }
+
+    public function createLessonTopic(): void
+    {
+        require_auth('admin');
+        ensure_lesson_topics_table();
+
+        $data = $this->lessonTopicData();
+        $statement = db()->prepare('INSERT INTO lesson_topics (unit, topic, image_url, sort_order) VALUES (?, ?, ?, ?)');
+        try {
+            $statement->execute([$data['unit'], $data['topic'], $data['image_url'], $data['sort_order']]);
+        } catch (\Throwable) {
+            flash('error', 'A lesson topic with that name already exists.');
+            redirect('/admin');
+        }
+
+        flash('success', 'Lesson topic created.');
+        redirect('/admin');
+    }
+
+    public function updateLessonTopic(): void
+    {
+        require_auth('admin');
+        ensure_lesson_topics_table();
+
+        $topicId = (int) ($_POST['topic_id'] ?? 0);
+        $data = $this->lessonTopicData();
+        $statement = db()->prepare('UPDATE lesson_topics SET unit = ?, topic = ?, image_url = ?, sort_order = ? WHERE id = ?');
+        $statement->execute([$data['unit'], $data['topic'], $data['image_url'], $data['sort_order'], $topicId]);
+
+        flash('success', 'Lesson topic updated.');
+        redirect('/admin');
+    }
+
+    public function deleteLessonTopic(): void
+    {
+        require_auth('admin');
+        ensure_lesson_topics_table();
+
+        $topicId = (int) ($_POST['topic_id'] ?? 0);
+        $statement = db()->prepare('DELETE FROM lesson_topics WHERE id = ?');
+        $statement->execute([$topicId]);
+
+        flash('success', 'Lesson topic deleted.');
+        redirect('/admin');
+    }
+
+    private function lessonTopicData(): array
+    {
+        $unit = trim((string) ($_POST['unit'] ?? ''));
+        $topic = trim((string) ($_POST['topic'] ?? ''));
+        $imageUrl = trim((string) ($_POST['image_url'] ?? ''));
+        $sortOrder = max(0, (int) ($_POST['sort_order'] ?? 0));
+
+        if (!empty($_FILES['image_upload']['tmp_name'])) {
+            $imageUrl = $this->storeLessonImage($_FILES['image_upload']);
+        }
+
+        if ($unit === '' || $topic === '' || $imageUrl === '') {
+            flash('error', 'Lesson unit, topic, and image are required.');
+            redirect('/admin');
+        }
+
+        return [
+            'unit' => $unit,
+            'topic' => $topic,
+            'image_url' => $imageUrl,
+            'sort_order' => $sortOrder,
+        ];
+    }
+
+    private function storeLessonImage(array $file): string
+    {
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            flash('error', 'The lesson image upload failed.');
+            redirect('/admin');
+        }
+
+        if (($file['size'] ?? 0) > 4 * 1024 * 1024) {
+            flash('error', 'Lesson images must be smaller than 4MB.');
+            redirect('/admin');
+        }
+
+        $mime = mime_content_type($file['tmp_name']);
+        $extensions = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+        ];
+
+        if (!isset($extensions[$mime])) {
+            flash('error', 'Upload a JPG, PNG, or WebP lesson image.');
+            redirect('/admin');
+        }
+
+        $directory = dirname(__DIR__, 2) . '/public/assets/img/lessons';
+        if (!is_dir($directory)) {
+            mkdir($directory, 0775, true);
+        }
+
+        $filename = 'lesson-' . bin2hex(random_bytes(12)) . '.' . $extensions[$mime];
+        $destination = $directory . '/' . $filename;
+        if (!move_uploaded_file($file['tmp_name'], $destination)) {
+            flash('error', 'The lesson image could not be saved.');
+            redirect('/admin');
+        }
+
+        return '/assets/img/lessons/' . $filename;
+    }
+
     private function openReportCount(): int
     {
         try {

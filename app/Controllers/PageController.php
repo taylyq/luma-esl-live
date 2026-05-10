@@ -70,7 +70,9 @@ final class PageController
 
     public function lessons(): void
     {
-        view('lessons', ['title' => 'Lessons']);
+        ensure_lesson_topics_table();
+        $topics = db()->query('SELECT * FROM lesson_topics ORDER BY sort_order ASC, id ASC')->fetchAll();
+        view('lessons', ['title' => 'Lessons', 'lessonTopics' => $topics]);
     }
 
     private function canViewPassedClass(?array $viewer, array $class): bool

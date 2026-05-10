@@ -68,28 +68,63 @@ if (languageSelect) {
 
 const lessons = document.querySelector('[data-lessons]');
 if (lessons) {
-    const buttons = lessons.querySelectorAll('[data-lesson-topic]');
+    const buttons = Array.from(lessons.querySelectorAll('[data-lesson-topic]'));
     const title = lessons.querySelector('[data-lesson-title]');
     const unit = lessons.querySelector('[data-lesson-unit-label]');
     const image = lessons.querySelector('[data-lesson-image-preview]');
+    const imageFrame = lessons.querySelector('[data-lesson-image-frame]');
+    const previousButton = lessons.querySelector('[data-lesson-prev]');
+    const nextButton = lessons.querySelector('[data-lesson-next]');
 
-    buttons.forEach((button) => {
-        button.addEventListener('click', () => {
-            buttons.forEach((item) => item.classList.remove('active'));
-            button.classList.add('active');
+    function selectLesson(index) {
+        const button = buttons[index];
+        if (!button) return;
 
-            const nextTitle = button.dataset.lessonTopic || '';
-            const nextUnit = button.dataset.lessonUnit || '';
-            const nextImage = button.dataset.lessonImage || '';
+        buttons.forEach((item) => item.classList.remove('active'));
+        button.classList.add('active');
+        button.scrollIntoView({ block: 'nearest' });
 
-            if (title) title.textContent = nextTitle;
-            if (unit) unit.textContent = nextUnit;
-            if (!image || !nextImage) return;
+        const nextTitle = button.dataset.lessonTopic || '';
+        const nextUnit = button.dataset.lessonUnit || '';
+        const nextImage = button.dataset.lessonImage || '';
 
-            image.classList.add('loading');
-            image.alt = `${nextTitle} lesson preview`;
-            image.src = nextImage;
-        });
+        if (title) title.textContent = nextTitle;
+        if (unit) unit.textContent = nextUnit;
+        if (imageFrame) imageFrame.scrollTop = 0;
+        if (!image || !nextImage) return;
+
+        image.classList.add('loading');
+        image.alt = `${nextTitle} lesson preview`;
+        image.src = nextImage;
+    }
+
+    function activeLessonIndex() {
+        return Math.max(0, buttons.findIndex((button) => button.classList.contains('active')));
+    }
+
+    function stepLesson(direction) {
+        const nextIndex = (activeLessonIndex() + direction + buttons.length) % buttons.length;
+        selectLesson(nextIndex);
+    }
+
+    buttons.forEach((button, index) => {
+        button.addEventListener('click', () => selectLesson(index));
+    });
+
+    if (previousButton) previousButton.addEventListener('click', () => stepLesson(-1));
+    if (nextButton) nextButton.addEventListener('click', () => stepLesson(1));
+
+    document.addEventListener('keydown', (event) => {
+        const tag = document.activeElement?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            stepLesson(-1);
+        }
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            stepLesson(1);
+        }
     });
 
     if (image) {

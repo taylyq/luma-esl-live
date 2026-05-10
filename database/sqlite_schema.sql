@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS message_blocks;
 DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS chats;
 DROP TABLE IF EXISTS availabilities;
+DROP TABLE IF EXISTS lesson_topics;
 DROP TABLE IF EXISTS class_listings;
 DROP TABLE IF EXISTS educator_credentials;
 DROP TABLE IF EXISTS educator_profiles;
@@ -94,6 +95,16 @@ CREATE TABLE availabilities (
     end_time TEXT NOT NULL,
     timezone TEXT NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
     FOREIGN KEY (educator_id) REFERENCES educator_profiles(id) ON DELETE CASCADE
+);
+
+CREATE TABLE lesson_topics (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    unit TEXT NOT NULL,
+    topic TEXT NOT NULL UNIQUE,
+    image_url TEXT NOT NULL,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE chats (
