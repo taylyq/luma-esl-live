@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/app.css?v=20260510-lessons-scroll">
+    <link rel="stylesheet" href="/assets/css/app.css?v=20260510-public-language">
 </head>
 <body>
     <header class="site-header">
@@ -25,6 +25,15 @@
             <a href="/teachers" class="<?= route_is('/teachers') ? 'active' : '' ?>">Teachers</a>
             <a href="/lessons" class="<?= route_is('/lessons') ? 'active' : '' ?>">Lessons</a>
             <a href="/calendar" class="<?= route_is('/calendar') || route_is('/pricing') ? 'active' : '' ?>">Calendar</a>
+            <?php if (!$user): ?>
+                <label class="language-picker nav-language">Language
+                    <select data-language-select>
+                        <option value="en">English</option>
+                        <option value="vi">Vietnamese</option>
+                        <option value="es">Spanish</option>
+                    </select>
+                </label>
+            <?php endif; ?>
             <?php if ($user): ?>
                 <a href="/dashboard" class="<?= route_is('/dashboard') ? 'active' : '' ?>">Dashboard</a>
                 <a href="/messages" class="<?= route_is('/messages') ? 'active' : '' ?>">Messages<?php if ($unreadCount > 0): ?><span class="nav-badge"><?= $unreadCount ?></span><?php endif; ?></a>
@@ -82,7 +91,7 @@
         </div>
     </footer>
     <div id="google_translate_element" aria-hidden="true"></div>
-    <script src="/assets/js/app.js?v=20260510-lessons"></script>
+    <script src="/assets/js/app.js?v=20260510-public-language"></script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

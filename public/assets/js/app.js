@@ -28,7 +28,7 @@ document.querySelectorAll('.flash').forEach((flash) => {
     }, 2800);
 });
 
-const languageSelect = document.querySelector('[data-language-select]');
+const languageSelects = Array.from(document.querySelectorAll('[data-language-select]'));
 
 function setTranslateCookie(language) {
     const value = language === 'en' ? '' : `/en/${language}`;
@@ -50,19 +50,23 @@ window.googleTranslateElementInit = function () {
     }, 'google_translate_element');
 };
 
-if (languageSelect) {
+if (languageSelects.length) {
     const savedLanguage = localStorage.getItem('luma_language') || 'en';
-    languageSelect.value = savedLanguage;
+    languageSelects.forEach((select) => {
+        select.value = savedLanguage;
+    });
     document.documentElement.lang = savedLanguage;
     if (savedLanguage !== 'en') {
         setTranslateCookie(savedLanguage);
     }
 
-    languageSelect.addEventListener('change', () => {
-        localStorage.setItem('luma_language', languageSelect.value);
-        document.documentElement.lang = languageSelect.value;
-        setTranslateCookie(languageSelect.value);
-        window.location.reload();
+    languageSelects.forEach((select) => {
+        select.addEventListener('change', () => {
+            localStorage.setItem('luma_language', select.value);
+            document.documentElement.lang = select.value;
+            setTranslateCookie(select.value);
+            window.location.reload();
+        });
     });
 }
 
@@ -73,12 +77,13 @@ if (lessons) {
     const unit = lessons.querySelector('[data-lesson-unit-label]');
     const image = lessons.querySelector('[data-lesson-image-preview]');
     const imageFrame = lessons.querySelector('[data-lesson-image-frame]');
-    const previousButton = lessons.querySelector('[data-lesson-prev]');
-    const nextButton = lessons.querySelector('[data-lesson-next]');
+
+    let selectedIndex = Math.max(0, buttons.findIndex((button) => button.classList.contains('active')));
 
     function selectLesson(index) {
         const button = buttons[index];
         if (!button) return;
+        selectedIndex = index;
 
         buttons.forEach((item) => item.classList.remove('active'));
         button.classList.add('active');
@@ -98,12 +103,8 @@ if (lessons) {
         image.src = nextImage;
     }
 
-    function activeLessonIndex() {
-        return Math.max(0, buttons.findIndex((button) => button.classList.contains('active')));
-    }
-
     function stepLesson(direction) {
-        const nextIndex = (activeLessonIndex() + direction + buttons.length) % buttons.length;
+        const nextIndex = (selectedIndex + direction + buttons.length) % buttons.length;
         selectLesson(nextIndex);
     }
 
@@ -111,8 +112,15 @@ if (lessons) {
         button.addEventListener('click', () => selectLesson(index));
     });
 
-    if (previousButton) previousButton.addEventListener('click', () => stepLesson(-1));
-    if (nextButton) nextButton.addEventListener('click', () => stepLesson(1));
+    lessons.addEventListener('click', (event) => {
+        if (!(event.target instanceof Element)) return;
+        const previous = event.target.closest('[data-lesson-prev]');
+        const next = event.target.closest('[data-lesson-next]');
+        if (!previous && !next) return;
+
+        event.preventDefault();
+        stepLesson(previous ? -1 : 1);
+    });
 
     document.addEventListener('keydown', (event) => {
         const tag = document.activeElement?.tagName;
