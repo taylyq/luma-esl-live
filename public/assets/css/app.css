@@ -975,6 +975,97 @@ textarea:focus {
     font-size: 16px;
 }
 
+.hp-field {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.captcha-card {
+    display: grid;
+    gap: 14px;
+    padding: 18px;
+    border: 1px solid rgba(17, 85, 132, .18);
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(255, 250, 239, .94), rgba(255, 255, 255, .92));
+}
+
+.captcha-card p {
+    margin: 4px 0 0;
+    color: var(--ink);
+    font-weight: 800;
+}
+
+.captcha-card small {
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+.captcha-label {
+    color: var(--brand);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.captcha-area {
+    display: grid;
+    grid-template-columns: 1fr 170px;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.captcha-tiles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.captcha-tile {
+    min-width: 92px;
+    padding: 12px 14px;
+    border: 1px solid rgba(17, 85, 132, .18);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--ink);
+    cursor: grab;
+    font-weight: 900;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, .06);
+}
+
+.captcha-tile:active {
+    cursor: grabbing;
+}
+
+.captcha-tile.selected {
+    border-color: var(--gold);
+    background: rgba(252, 185, 57, .18);
+    color: var(--brand);
+}
+
+.captcha-drop {
+    display: grid;
+    min-height: 54px;
+    place-items: center;
+    border: 2px dashed rgba(17, 85, 132, .3);
+    border-radius: 18px;
+    background: rgba(17, 85, 132, .04);
+    color: var(--muted);
+    font-weight: 900;
+    text-align: center;
+}
+
+.captcha-drop.filled {
+    border-style: solid;
+    border-color: var(--gold);
+    background: rgba(252, 185, 57, .16);
+    color: var(--brand);
+}
+
 .directory-layout {
     display: grid;
     grid-template-columns: 280px 1fr;
@@ -1634,6 +1725,10 @@ textarea:focus {
     .trust-grid,
     .role-picker,
     .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .captcha-area {
         grid-template-columns: 1fr;
     }
 

@@ -21,6 +21,52 @@ if (stream) {
     stream.scrollTop = stream.scrollHeight;
 }
 
+const captcha = document.querySelector('[data-captcha]');
+if (captcha) {
+    const answer = captcha.querySelector('[data-captcha-answer]');
+    const drop = captcha.querySelector('[data-captcha-drop]');
+    const tiles = Array.from(captcha.querySelectorAll('[data-captcha-tile]'));
+
+    function selectCaptchaTile(tile) {
+        if (!tile || !answer || !drop) return;
+
+        answer.value = tile.dataset.captchaValue || '';
+        tiles.forEach((item) => item.classList.remove('selected'));
+        tile.classList.add('selected');
+        drop.textContent = tile.textContent.trim();
+        drop.classList.add('filled');
+    }
+
+    tiles.forEach((tile) => {
+        tile.addEventListener('dragstart', (event) => {
+            if (!event.dataTransfer) return;
+            event.dataTransfer.setData('text/plain', tile.dataset.captchaValue || '');
+            event.dataTransfer.effectAllowed = 'move';
+        });
+
+        tile.addEventListener('click', () => selectCaptchaTile(tile));
+    });
+
+    if (drop) {
+        drop.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+        });
+
+        drop.addEventListener('drop', (event) => {
+            event.preventDefault();
+            const value = event.dataTransfer?.getData('text/plain') || '';
+            selectCaptchaTile(tiles.find((tile) => tile.dataset.captchaValue === value));
+        });
+
+        drop.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            selectCaptchaTile(tiles[0]);
+        });
+    }
+}
+
 document.querySelectorAll('.flash').forEach((flash) => {
     setTimeout(() => {
         flash.style.opacity = '0';

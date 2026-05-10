@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/app.css?v=20260510-public-language">
+    <link rel="stylesheet" href="/assets/css/app.css?v=20260511-captcha">
 </head>
 <body>
     <header class="site-header">
@@ -91,7 +91,7 @@
         </div>
     </footer>
     <div id="google_translate_element" aria-hidden="true"></div>
-    <script src="/assets/js/app.js?v=20260510-public-language"></script>
+    <script src="/assets/js/app.js?v=20260511-captcha"></script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

@@ -13,7 +13,10 @@ final class AuthController
 
     public function register(): void
     {
-        view('auth/register', ['title' => 'Create account']);
+        view('auth/register', [
+            'title' => 'Create account',
+            'captcha' => $this->captchaPuzzle(),
+        ]);
     }
 
     public function forgotPassword(): void
@@ -81,6 +84,11 @@ final class AuthController
         $email = trim((string) ($_POST['email'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
         $role = (string) ($_POST['role'] ?? 'student');
+
+        if (!$this->captchaPassed()) {
+            flash('error', 'Complete the drag-and-drop verification before creating an account.');
+            redirect('/register');
+        }
 
         if (!in_array($role, ['student', 'educator'], true) || strlen($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 8) {
             flash('error', 'Please enter a name, valid email, role, and password with at least 8 characters.');
@@ -212,5 +220,71 @@ final class AuthController
             'Verify your Luma ESL email',
             "Welcome to Luma ESL.\n\nVerify your email here:\n" . app_url('/email/verify?token=' . $token)
         );
+    }
+
+    private function captchaPuzzle(): array
+    {
+        $puzzles = [
+            [
+                'instruction' => 'Drag the classroom item into the box.',
+                'answer' => 'book',
+                'items' => [
+                    ['value' => 'book', 'label' => 'Book'],
+                    ['value' => 'apple', 'label' => 'Apple'],
+                    ['value' => 'clock', 'label' => 'Clock'],
+                ],
+            ],
+            [
+                'instruction' => 'Drag the learning place into the box.',
+                'answer' => 'school',
+                'items' => [
+                    ['value' => 'beach', 'label' => 'Beach'],
+                    ['value' => 'school', 'label' => 'School'],
+                    ['value' => 'market', 'label' => 'Market'],
+                ],
+            ],
+            [
+                'instruction' => 'Drag the teacher tool into the box.',
+                'answer' => 'pencil',
+                'items' => [
+                    ['value' => 'pencil', 'label' => 'Pencil'],
+                    ['value' => 'shirt', 'label' => 'Shirt'],
+                    ['value' => 'banana', 'label' => 'Banana'],
+                ],
+            ],
+        ];
+
+        $puzzle = $puzzles[random_int(0, count($puzzles) - 1)];
+        shuffle($puzzle['items']);
+        $puzzle['id'] = bin2hex(random_bytes(16));
+
+        $_SESSION['register_captcha'] = [
+            'id' => $puzzle['id'],
+            'answer' => $puzzle['answer'],
+            'expires_at' => time() + 900,
+        ];
+
+        return $puzzle;
+    }
+
+    private function captchaPassed(): bool
+    {
+        if (trim((string) ($_POST['website'] ?? '')) !== '') {
+            unset($_SESSION['register_captcha']);
+            return false;
+        }
+
+        $captcha = $_SESSION['register_captcha'] ?? null;
+        unset($_SESSION['register_captcha']);
+
+        if (!is_array($captcha) || (int) ($captcha['expires_at'] ?? 0) < time()) {
+            return false;
+        }
+
+        $id = (string) ($_POST['captcha_id'] ?? '');
+        $answer = strtolower(trim((string) ($_POST['captcha_answer'] ?? '')));
+
+        return hash_equals((string) ($captcha['id'] ?? ''), $id)
+            && hash_equals((string) ($captcha['answer'] ?? ''), $answer);
     }
 }
