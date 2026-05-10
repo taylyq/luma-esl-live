@@ -8,6 +8,9 @@
             <label>Password<input name="password" type="password" required autocomplete="current-password"></label>
             <button class="button button-dark full" type="submit">Sign in</button>
         </form>
-        <p class="muted"><a href="/forgot-password">Forgot password?</a></p>
+        <div class="auth-links">
+            <a href="/forgot-password">Forgot password?</a>
+            <span>New to Luma ESL? <a href="/register">Create an account</a></span>
+        </div>
     </div>
 </section>

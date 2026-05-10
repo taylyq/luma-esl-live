@@ -911,6 +911,20 @@ body {
     width: min(680px, 100%);
 }
 
+.auth-links {
+    display: grid;
+    gap: 12px;
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.auth-links a {
+    color: var(--brand);
+    font-weight: 900;
+}
+
 .form-stack,
 .form-grid {
     display: grid;
