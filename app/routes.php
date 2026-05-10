@@ -4,6 +4,7 @@ return [
     'GET' => [
         '/' => ['PageController', 'home'],
         '/teachers' => ['TeacherController', 'index'],
+        '/lessons' => ['PageController', 'lessons'],
         '/calendar' => ['PageController', 'pricing'],
         '/pricing' => ['PageController', 'pricing'],
         '/login' => ['AuthController', 'login'],

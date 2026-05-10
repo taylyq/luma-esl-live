@@ -68,6 +68,11 @@ final class PageController
         ]);
     }
 
+    public function lessons(): void
+    {
+        view('lessons', ['title' => 'Lessons']);
+    }
+
     private function canViewPassedClass(?array $viewer, array $class): bool
     {
         if (!$viewer) {

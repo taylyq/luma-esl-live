@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/app.css?v=20260509-translator">
+    <link rel="stylesheet" href="/assets/css/app.css?v=20260510-lessons">
 </head>
 <body>
     <header class="site-header">
@@ -23,6 +23,7 @@
         <button class="nav-toggle" type="button" data-nav-toggle aria-label="Open navigation">☰</button>
         <nav class="site-nav" data-nav>
             <a href="/teachers" class="<?= route_is('/teachers') ? 'active' : '' ?>">Teachers</a>
+            <a href="/lessons" class="<?= route_is('/lessons') ? 'active' : '' ?>">Lessons</a>
             <a href="/calendar" class="<?= route_is('/calendar') || route_is('/pricing') ? 'active' : '' ?>">Calendar</a>
             <?php if ($user): ?>
                 <a href="/dashboard" class="<?= route_is('/dashboard') ? 'active' : '' ?>">Dashboard</a>
@@ -81,7 +82,7 @@
         </div>
     </footer>
     <div id="google_translate_element" aria-hidden="true"></div>
-    <script src="/assets/js/app.js?v=20260509-translator"></script>
+    <script src="/assets/js/app.js?v=20260510-lessons"></script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

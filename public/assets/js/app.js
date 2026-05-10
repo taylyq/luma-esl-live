@@ -65,3 +65,40 @@ if (languageSelect) {
         window.location.reload();
     });
 }
+
+const lessons = document.querySelector('[data-lessons]');
+if (lessons) {
+    const buttons = lessons.querySelectorAll('[data-lesson-topic]');
+    const title = lessons.querySelector('[data-lesson-title]');
+    const unit = lessons.querySelector('[data-lesson-unit-label]');
+    const image = lessons.querySelector('[data-lesson-image-preview]');
+
+    buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+            buttons.forEach((item) => item.classList.remove('active'));
+            button.classList.add('active');
+
+            const nextTitle = button.dataset.lessonTopic || '';
+            const nextUnit = button.dataset.lessonUnit || '';
+            const nextImage = button.dataset.lessonImage || '';
+
+            if (title) title.textContent = nextTitle;
+            if (unit) unit.textContent = nextUnit;
+            if (!image || !nextImage) return;
+
+            image.classList.add('loading');
+            image.alt = `${nextTitle} lesson preview`;
+            image.src = nextImage;
+        });
+    });
+
+    if (image) {
+        image.addEventListener('load', () => {
+            image.classList.remove('loading');
+        });
+
+        image.addEventListener('error', () => {
+            image.classList.remove('loading');
+        });
+    }
+}
