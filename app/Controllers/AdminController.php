@@ -155,6 +155,59 @@ final class AdminController
         redirect('/admin');
     }
 
+    public function bulkUpdateLessonTopics(): void
+    {
+        require_auth('admin');
+        ensure_lesson_topics_table();
+
+        $topics = $_POST['topics'] ?? [];
+        if (!is_array($topics)) {
+            redirect('/admin');
+        }
+
+        $update = db()->prepare('UPDATE lesson_topics SET unit = ?, topic = ?, image_url = ?, sort_order = ? WHERE id = ?');
+        $delete = db()->prepare('DELETE FROM lesson_topics WHERE id = ?');
+        $saved = 0;
+        $deleted = 0;
+
+        foreach ($topics as $topicId => $topicData) {
+            $topicId = (int) $topicId;
+            if ($topicId <= 0 || !is_array($topicData)) {
+                continue;
+            }
+
+            if (!empty($topicData['delete'])) {
+                $delete->execute([$topicId]);
+                $deleted++;
+                continue;
+            }
+
+            $unit = trim((string) ($topicData['unit'] ?? ''));
+            $topic = trim((string) ($topicData['topic'] ?? ''));
+            $imageUrl = trim((string) ($topicData['image_url'] ?? ''));
+            $sortOrder = max(0, (int) ($topicData['sort_order'] ?? 0));
+
+            $uploadedFile = $this->nestedLessonUpload($topicId);
+            if ($uploadedFile !== null) {
+                $imageUrl = $this->storeLessonImage($uploadedFile);
+            }
+
+            if ($unit === '' || $topic === '' || $imageUrl === '') {
+                continue;
+            }
+
+            try {
+                $update->execute([$unit, $topic, $imageUrl, $sortOrder, $topicId]);
+                $saved++;
+            } catch (\Throwable) {
+                continue;
+            }
+        }
+
+        flash('success', "Lesson topics updated. Saved {$saved}, deleted {$deleted}.");
+        redirect('/admin');
+    }
+
     public function deleteLessonTopic(): void
     {
         require_auth('admin');
@@ -229,6 +282,21 @@ final class AdminController
         }
 
         return '/assets/img/lessons/' . $filename;
+    }
+
+    private function nestedLessonUpload(int $topicId): ?array
+    {
+        if (empty($_FILES['image_upload']['tmp_name'][$topicId])) {
+            return null;
+        }
+
+        return [
+            'name' => $_FILES['image_upload']['name'][$topicId] ?? '',
+            'type' => $_FILES['image_upload']['type'][$topicId] ?? '',
+            'tmp_name' => $_FILES['image_upload']['tmp_name'][$topicId],
+            'error' => $_FILES['image_upload']['error'][$topicId] ?? UPLOAD_ERR_NO_FILE,
+            'size' => $_FILES['image_upload']['size'][$topicId] ?? 0,
+        ];
     }
 
     private function openReportCount(): int

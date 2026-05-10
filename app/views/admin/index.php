@@ -48,26 +48,23 @@
             <option value="Play, sports, and hobbies">
             <option value="Community and nature">
         </datalist>
-        <div class="admin-lesson-list">
-            <?php foreach ($lessonTopics as $topic): ?>
-                <form method="post" action="/admin/lessons/update" class="admin-lesson-row" enctype="multipart/form-data">
-                    <input type="hidden" name="_token" value="<?= csrf_token() ?>">
-                    <input type="hidden" name="topic_id" value="<?= (int) $topic['id'] ?>">
-                    <img src="<?= e(lesson_image_url((string) $topic['image_url'])) ?>" alt="<?= e($topic['topic']) ?>">
-                    <label>Unit<input name="unit" value="<?= e($topic['unit']) ?>" required></label>
-                    <label>Topic<input name="topic" value="<?= e($topic['topic']) ?>" required></label>
-                    <label>Sort<input name="sort_order" type="number" min="0" value="<?= (int) $topic['sort_order'] ?>"></label>
-                    <label>Image<input name="image_url" value="<?= e($topic['image_url']) ?>" required></label>
-                    <label>Replace<input name="image_upload" type="file" accept="image/jpeg,image/png,image/webp"></label>
-                    <button class="button button-dark" type="submit">Save</button>
-                </form>
-                <form method="post" action="/admin/lessons/delete" class="admin-lesson-delete">
-                    <input type="hidden" name="_token" value="<?= csrf_token() ?>">
-                    <input type="hidden" name="topic_id" value="<?= (int) $topic['id'] ?>">
-                    <button class="link-button danger" type="submit" onclick="return confirm('Delete this lesson topic?')">Delete <?= e($topic['topic']) ?></button>
-                </form>
-            <?php endforeach; ?>
-        </div>
+        <form method="post" action="/admin/lessons/bulk-update" enctype="multipart/form-data">
+            <input type="hidden" name="_token" value="<?= csrf_token() ?>">
+            <div class="admin-lesson-list">
+                <?php foreach ($lessonTopics as $topic): ?>
+                    <div class="admin-lesson-row">
+                        <img src="<?= e(lesson_image_url((string) $topic['image_url'])) ?>" alt="<?= e($topic['topic']) ?>">
+                        <label>Unit<input name="topics[<?= (int) $topic['id'] ?>][unit]" value="<?= e($topic['unit']) ?>" required></label>
+                        <label>Topic<input name="topics[<?= (int) $topic['id'] ?>][topic]" value="<?= e($topic['topic']) ?>" required></label>
+                        <label>Sort<input name="topics[<?= (int) $topic['id'] ?>][sort_order]" type="number" min="0" value="<?= (int) $topic['sort_order'] ?>"></label>
+                        <label>Image<input name="topics[<?= (int) $topic['id'] ?>][image_url]" value="<?= e($topic['image_url']) ?>" required></label>
+                        <label>Replace<input name="image_upload[<?= (int) $topic['id'] ?>]" type="file" accept="image/jpeg,image/png,image/webp"></label>
+                        <label class="check danger"><input type="checkbox" name="topics[<?= (int) $topic['id'] ?>][delete]" value="1"> Delete</label>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <button class="button button-dark full top-gap" type="submit">Save all lesson topics</button>
+        </form>
     </article>
     <article class="panel">
         <h2>Recent message reports</h2>

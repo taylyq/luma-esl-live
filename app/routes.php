@@ -41,6 +41,7 @@ return [
         '/admin/students/update' => ['AdminController', 'updateStudent'],
         '/admin/educators/update' => ['AdminController', 'updateEducator'],
         '/admin/lessons/create' => ['AdminController', 'createLessonTopic'],
+        '/admin/lessons/bulk-update' => ['AdminController', 'bulkUpdateLessonTopics'],
         '/admin/lessons/update' => ['AdminController', 'updateLessonTopic'],
         '/admin/lessons/delete' => ['AdminController', 'deleteLessonTopic'],
     ],
