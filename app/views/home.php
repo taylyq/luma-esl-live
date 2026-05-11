@@ -14,7 +14,7 @@
         </div>
     </div>
     <div class="hero-media home-hero-media">
-        <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=1200&q=80" alt="Students learning English together">
+        <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=1200&q=80" alt="Students learning English together" width="960" height="1200" decoding="async" fetchpriority="high">
         <div class="floating-card">
             <span>Student flow</span>
             <strong>Browse -> Message -> Join</strong>

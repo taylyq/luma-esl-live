@@ -7,6 +7,8 @@ return [
         '/lessons' => ['PageController', 'lessons'],
         '/calendar' => ['PageController', 'pricing'],
         '/pricing' => ['PageController', 'pricing'],
+        '/privacy' => ['PageController', 'privacy'],
+        '/terms' => ['PageController', 'terms'],
         '/login' => ['AuthController', 'login'],
         '/register' => ['AuthController', 'register'],
         '/forgot-password' => ['AuthController', 'forgotPassword'],

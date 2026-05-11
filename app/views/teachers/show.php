@@ -1,5 +1,5 @@
 <section class="profile-hero">
-    <img src="<?= e($teacher['profile_photo']) ?>" alt="<?= e($teacher['name']) ?>">
+    <img src="<?= e($teacher['profile_photo']) ?>" alt="<?= e($teacher['name']) ?>" width="640" height="720" decoding="async" fetchpriority="high">
     <div class="profile-copy">
         <div class="profile-title">
             <span class="eyebrow"><?= (int) $teacher['verified'] === 1 ? 'Verified educator' : 'Educator' ?></span>

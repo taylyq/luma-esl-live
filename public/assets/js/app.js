@@ -125,6 +125,18 @@ if (lessons) {
     const imageFrame = lessons.querySelector('[data-lesson-image-frame]');
 
     let selectedIndex = Math.max(0, buttons.findIndex((button) => button.classList.contains('active')));
+    const preloadedLessonImages = new Set();
+
+    function preloadLessonImage(index) {
+        const button = buttons[index];
+        const src = button?.dataset.lessonImage || '';
+        if (!src || preloadedLessonImages.has(src)) return;
+
+        preloadedLessonImages.add(src);
+        const preload = new Image();
+        preload.decoding = 'async';
+        preload.src = src;
+    }
 
     function selectLesson(index) {
         const button = buttons[index];
@@ -147,6 +159,8 @@ if (lessons) {
         image.classList.add('loading');
         image.alt = `${nextTitle} lesson preview`;
         image.src = nextImage;
+        preloadLessonImage((selectedIndex + 1) % buttons.length);
+        preloadLessonImage((selectedIndex - 1 + buttons.length) % buttons.length);
     }
 
     function stepLesson(direction) {
@@ -190,4 +204,7 @@ if (lessons) {
             image.classList.remove('loading');
         });
     }
+
+    preloadLessonImage(selectedIndex);
+    preloadLessonImage((selectedIndex + 1) % buttons.length);
 }

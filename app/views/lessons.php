@@ -47,7 +47,7 @@ $firstLesson = $lessonTopics[0] ?? null;
             </div>
             <div class="lesson-image-wrap">
                 <div class="lesson-image-frame" data-lesson-image-frame>
-                    <img data-lesson-image-preview src="<?= e(lesson_image_url((string) $firstLesson['image_url'])) ?>" alt="<?= e($firstLesson['topic']) ?> lesson preview">
+                    <img data-lesson-image-preview src="<?= e(lesson_image_url((string) $firstLesson['image_url'])) ?>" alt="<?= e($firstLesson['topic']) ?> lesson preview" decoding="async" fetchpriority="high">
                 </div>
                 <div class="lesson-nav-buttons" aria-label="Browse lessons">
                     <button type="button" data-lesson-prev aria-label="Previous lesson">↑</button>

@@ -72,7 +72,7 @@ $calendarSections = [
                             ?>
                             <article class="calendar-card <?= $hasPassed ? 'passed' : '' ?>">
                                 <div class="calendar-class-main">
-                                    <img class="calendar-teacher-photo" src="<?= e($class['profile_photo'] ?: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=300&q=80') ?>" alt="<?= e($class['teacher_name']) ?>">
+                                    <img class="calendar-teacher-photo" src="<?= e($class['profile_photo'] ?: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=180&q=70') ?>" alt="<?= e($class['teacher_name']) ?>" width="74" height="74" loading="lazy" decoding="async">
                                     <div>
                                         <div class="calendar-meta">
                                             <span><?= e(date('g:i A', $starts)) ?><?= $ends ? ' - ' . e(date('g:i A', $ends)) : '' ?></span>

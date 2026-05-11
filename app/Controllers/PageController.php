@@ -96,6 +96,16 @@ final class PageController
         view('lessons', ['title' => 'Lessons', 'lessonTopics' => $topics]);
     }
 
+    public function privacy(): void
+    {
+        view('privacy', ['title' => 'Privacy policy']);
+    }
+
+    public function terms(): void
+    {
+        view('terms', ['title' => 'Terms of service']);
+    }
+
     private function canViewPassedClass(?array $viewer, array $class): bool
     {
         if (!$viewer) {

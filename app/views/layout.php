@@ -7,9 +7,11 @@
     <title><?= e($title ?? config('app_name')) ?> · <?= e(config('app_name')) ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://source.unsplash.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/app.css?v=20260511-home-official">
+    <link rel="stylesheet" href="/assets/css/app.css?v=20260511-responsive-speed">
 </head>
 <body>
     <header class="site-header">
@@ -88,10 +90,14 @@
         <div class="footer-contact">
             <span>Contact</span>
             <a class="notranslate" href="mailto:admin.lumaesl@gmail.com">admin.lumaesl@gmail.com</a>
+            <div class="footer-policy-links">
+                <a href="/privacy">Privacy</a>
+                <a href="/terms">Terms</a>
+            </div>
         </div>
     </footer>
     <div id="google_translate_element" aria-hidden="true"></div>
-    <script src="/assets/js/app.js?v=20260511-home-official"></script>
-    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script src="/assets/js/app.js?v=20260511-responsive-speed" defer></script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
 </body>
 </html>

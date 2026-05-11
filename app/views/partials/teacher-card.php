@@ -1,6 +1,6 @@
 <article class="teacher-card">
     <a class="teacher-photo" href="/teachers/<?= (int) $teacher['id'] ?>">
-        <img src="<?= e($teacher['profile_photo'] ?: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80') ?>" alt="<?= e($teacher['name']) ?>">
+        <img src="<?= e($teacher['profile_photo'] ?: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=700&q=75') ?>" alt="<?= e($teacher['name']) ?>" width="700" height="560" loading="lazy" decoding="async">
     </a>
     <div class="teacher-card-body">
         <div class="teacher-card-top">

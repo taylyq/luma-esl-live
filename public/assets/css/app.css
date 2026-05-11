@@ -31,6 +31,7 @@ body {
     color: var(--ink);
     font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     line-height: 1.5;
+    overflow-wrap: break-word;
 }
 
 a {
@@ -568,6 +569,11 @@ body {
     padding: 72px 0;
 }
 
+.section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 760px;
+}
+
 .section-heading {
     margin-bottom: 26px;
 }
@@ -713,6 +719,13 @@ body {
     align-items: start;
 }
 
+.lessons-shell,
+.lesson-sidebar,
+.lesson-preview,
+.lesson-image-frame {
+    min-width: 0;
+}
+
 .lesson-sidebar,
 .lesson-preview {
     background: rgba(255, 255, 255, .82);
@@ -729,6 +742,7 @@ body {
     max-height: calc(100vh - 116px);
     overflow-y: auto;
     padding: 20px;
+    scrollbar-gutter: stable;
 }
 
 .lesson-unit h2 {
@@ -795,6 +809,8 @@ body {
     overflow-y: auto;
     background: var(--surface-2);
     border-bottom-left-radius: var(--radius);
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
 }
 
 .lesson-preview img {
@@ -1709,6 +1725,49 @@ textarea:focus {
     font-weight: 800;
 }
 
+.footer-policy-links {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.policy-page h1 {
+    margin: 0;
+    color: var(--graphite);
+    font-size: clamp(40px, 7vw, 72px);
+    line-height: 1;
+}
+
+.policy-list {
+    display: grid;
+    gap: 16px;
+    margin-top: 30px;
+}
+
+.policy-list article {
+    padding: 22px;
+    background: rgba(255, 255, 255, .82);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.policy-list h2 {
+    margin: 0 0 8px;
+    color: var(--graphite);
+}
+
+.policy-list p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.policy-list a {
+    color: var(--blue);
+    font-weight: 800;
+}
+
 @media (max-width: 980px) {
     .hero,
     .profile-hero,
@@ -1746,6 +1805,7 @@ textarea:focus {
 
     .lessons-shell {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
 
     .lesson-sidebar,
@@ -1754,11 +1814,11 @@ textarea:focus {
     }
 
     .lesson-sidebar {
-        max-height: 460px;
+        max-height: 340px;
     }
 
     .lesson-image-frame {
-        height: 620px;
+        height: min(680px, 72vh);
     }
 
     .filters {
@@ -1818,6 +1878,8 @@ textarea:focus {
         display: none;
         flex-direction: column;
         align-items: stretch;
+        max-height: calc(100vh - 84px);
+        overflow-y: auto;
         padding: 18px;
         background: #fff;
         border: 1px solid var(--line);
@@ -1879,7 +1941,7 @@ textarea:focus {
     }
 
     .lesson-preview h2 {
-        font-size: 36px;
+        font-size: 34px;
     }
 
     .lesson-image-wrap {
@@ -1888,14 +1950,18 @@ textarea:focus {
     }
 
     .lesson-image-frame {
-        height: 560px;
+        height: min(620px, 68vh);
         border-bottom-left-radius: 0;
     }
 
     .lesson-nav-buttons {
+        position: sticky;
+        bottom: 0;
         display: flex;
         justify-content: center;
-        padding: 0 12px 12px;
+        padding: 10px 12px 12px;
+        background: linear-gradient(180deg, rgba(255, 253, 248, .7), rgba(255, 253, 248, .96));
+        border-top: 1px solid var(--line);
     }
 
     .span-2 {
@@ -1927,6 +1993,10 @@ textarea:focus {
 
     .footer-contact {
         text-align: left;
+    }
+
+    .footer-policy-links {
+        justify-content: flex-start;
     }
 
     .admin-row {
