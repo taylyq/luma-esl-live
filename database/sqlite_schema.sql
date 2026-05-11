@@ -27,6 +27,8 @@ CREATE TABLE users (
     email_verification_token TEXT NULL,
     avatar TEXT NULL,
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','pending','suspended')),
+    age_confirmed_at TEXT NULL,
+    terms_accepted_at TEXT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 

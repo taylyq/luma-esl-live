@@ -1658,6 +1658,25 @@ textarea:focus {
     width: auto;
 }
 
+.legal-check {
+    align-items: start;
+    grid-auto-flow: column;
+    justify-content: start;
+    padding: 14px;
+    border: 1px solid rgba(17, 85, 132, .14);
+    border-radius: 16px;
+    background: rgba(255, 253, 248, .78);
+    color: var(--ink);
+    line-height: 1.4;
+}
+
+.legal-check a {
+    color: var(--blue);
+    font-weight: 900;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
 .flash {
     position: fixed;
     left: 50%;

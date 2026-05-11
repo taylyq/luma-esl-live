@@ -5,6 +5,10 @@
 
     <div class="policy-list">
         <article>
+            <h2>Adults only</h2>
+            <p>Luma ESL accounts and messaging are limited to users who are at least 18 years old. By creating an account, confirming access to messages, or using the message feature, you represent that you are an adult with legal capacity to use this service.</p>
+        </article>
+        <article>
             <h2>Teacher listings</h2>
             <p>Educators are responsible for accurate profiles, class descriptions, availability, pricing, and Zoom access. Luma ESL may approve, reject, hide, or remove listings that appear unsafe, misleading, or low quality.</p>
         </article>
@@ -18,7 +22,7 @@
         </article>
         <article>
             <h2>Safety and conduct</h2>
-            <p>Spam, harassment, impersonation, unsafe conduct, and misuse of Zoom links are not allowed. Users can report messages, and accounts may be suspended when needed to protect the marketplace.</p>
+            <p>Spam, harassment, impersonation, unsafe conduct, underage account use, and misuse of Zoom links are not allowed. Users can report messages, and accounts may be suspended when needed to protect the marketplace.</p>
         </article>
         <article>
             <h2>Contact</h2>

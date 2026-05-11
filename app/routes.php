@@ -11,6 +11,7 @@ return [
         '/terms' => ['PageController', 'terms'],
         '/login' => ['AuthController', 'login'],
         '/register' => ['AuthController', 'register'],
+        '/age-confirmation' => ['AuthController', 'ageConfirmation'],
         '/forgot-password' => ['AuthController', 'forgotPassword'],
         '/reset-password' => ['AuthController', 'resetPassword'],
         '/email/verify' => ['AuthController', 'verifyNotice'],
@@ -25,6 +26,7 @@ return [
     'POST' => [
         '/login' => ['AuthController', 'authenticate'],
         '/register' => ['AuthController', 'store'],
+        '/age-confirmation' => ['AuthController', 'confirmAge'],
         '/forgot-password' => ['AuthController', 'sendResetLink'],
         '/reset-password' => ['AuthController', 'updatePassword'],
         '/email/verify' => ['AuthController', 'verifyEmail'],

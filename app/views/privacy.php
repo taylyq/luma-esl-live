@@ -6,7 +6,7 @@
     <div class="policy-list">
         <article>
             <h2>Information we collect</h2>
-            <p>We collect account details, profile information, teacher class listings, messages, class requests, reviews, uploaded images, and basic operational logs.</p>
+            <p>We collect account details, adult and terms confirmation timestamps, profile information, teacher class listings, messages, class requests, reviews, uploaded images, and basic operational logs.</p>
         </article>
         <article>
             <h2>How we use information</h2>
@@ -15,6 +15,10 @@
         <article>
             <h2>Class links and messages</h2>
             <p>Zoom links are shown only after class access is approved. Messages may be reviewed when a user reports safety, spam, or abuse concerns.</p>
+        </article>
+        <article>
+            <h2>Adults only</h2>
+            <p>Luma ESL is intended for adults. If we learn that an account is being used by someone under 18, we may suspend or remove the account and related messaging access.</p>
         </article>
         <article>
             <h2>Contact</h2>

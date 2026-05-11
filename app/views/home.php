@@ -98,12 +98,12 @@
     </div>
     <div class="trust-grid">
         <div>Admin-reviewed educators</div>
+        <div>Adult-only messaging</div>
         <div>Email verification</div>
         <div>Hidden Zoom links</div>
         <div>Message reports</div>
         <div>Role-based dashboards</div>
         <div>Class request approval</div>
         <div>Teacher photo profiles</div>
-        <div>Student class history</div>
     </div>
 </section>

@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://source.unsplash.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/app.css?v=20260511-responsive-speed">
+    <link rel="stylesheet" href="/assets/css/app.css?v=20260511-adult-only">
 </head>
 <body>
     <header class="site-header">
@@ -97,7 +97,7 @@
         </div>
     </footer>
     <div id="google_translate_element" aria-hidden="true"></div>
-    <script src="/assets/js/app.js?v=20260511-responsive-speed" defer></script>
+    <script src="/assets/js/app.js?v=20260511-adult-only" defer></script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
 </body>
 </html>

@@ -33,6 +33,14 @@
                 </div>
                 <small>Complete this puzzle, then check your email to verify your account.</small>
             </div>
+            <label class="check legal-check">
+                <input type="checkbox" name="adult_confirm" value="1" required>
+                I confirm I am at least 18 years old. Luma ESL accounts and messaging are for adults only.
+            </label>
+            <label class="check legal-check">
+                <input type="checkbox" name="terms_accept" value="1" required>
+                I agree to the <a href="/terms" target="_blank" rel="noopener">Terms</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
+            </label>
             <button class="button button-dark full" type="submit">Create account</button>
         </form>
     </div>

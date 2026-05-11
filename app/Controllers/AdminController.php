@@ -59,6 +59,7 @@ final class AdminController
     public function createAdmin(): void
     {
         require_auth('admin');
+        ensure_user_compliance_columns();
 
         $name = trim((string) ($_POST['name'] ?? ''));
         $email = trim((string) ($_POST['email'] ?? ''));
@@ -71,8 +72,8 @@ final class AdminController
         }
 
         $statement = db()->prepare(
-            "INSERT INTO users (role, name, email, password, email_verified_at, status)
-             VALUES ('admin', ?, ?, ?, CURRENT_TIMESTAMP, 'active')"
+            "INSERT INTO users (role, name, email, password, email_verified_at, status, age_confirmed_at, terms_accepted_at)
+             VALUES ('admin', ?, ?, ?, CURRENT_TIMESTAMP, 'active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
         );
 
         try {

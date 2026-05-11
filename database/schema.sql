@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
     email_verification_token VARCHAR(64) NULL,
     avatar VARCHAR(255) NULL,
     status ENUM('active','pending','suspended') NOT NULL DEFAULT 'active',
+    age_confirmed_at DATETIME NULL,
+    terms_accepted_at DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

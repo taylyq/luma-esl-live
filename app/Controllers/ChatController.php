@@ -9,12 +9,14 @@ final class ChatController
     public function index(): void
     {
         $user = require_auth();
+        $user = require_adult_confirmed($user);
         view('messages/index', ['title' => 'Messages', 'chats' => $this->chatList($user)]);
     }
 
     public function show(): void
     {
         $user = require_auth();
+        $user = require_adult_confirmed($user);
         $chatId = (int) ($_GET['id'] ?? 0);
         $chat = $this->authorizeChat($chatId, $user);
         $this->markRead($chatId, (int) $user['id']);
@@ -42,6 +44,7 @@ final class ChatController
     public function start(): void
     {
         $user = require_auth();
+        $user = require_adult_confirmed($user);
         $recipientId = (int) ($_POST['recipient_id'] ?? 0);
         $educatorId = (int) ($_POST['educator_id'] ?? 0);
         $body = trim((string) ($_POST['message_body'] ?? 'I am interested in your next Zoom class.'));
@@ -80,6 +83,7 @@ final class ChatController
     public function send(): void
     {
         $user = require_auth();
+        $user = require_adult_confirmed($user);
         $chatId = (int) ($_POST['chat_id'] ?? 0);
         $body = trim((string) ($_POST['message_body'] ?? ''));
         $chat = $this->authorizeChat($chatId, $user);
@@ -103,6 +107,7 @@ final class ChatController
     public function block(): void
     {
         $user = require_auth();
+        $user = require_adult_confirmed($user);
         $chatId = (int) ($_POST['chat_id'] ?? 0);
         $chat = $this->authorizeChat($chatId, $user);
 
@@ -125,6 +130,7 @@ final class ChatController
     public function report(): void
     {
         $user = require_auth();
+        $user = require_adult_confirmed($user);
         $chatId = (int) ($_POST['chat_id'] ?? 0);
         $messageId = (int) ($_POST['message_id'] ?? 0);
         $reason = (string) ($_POST['reason'] ?? 'other');

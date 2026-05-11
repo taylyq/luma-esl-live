@@ -111,6 +111,69 @@ function require_auth(?string $role = null): array
     return $user;
 }
 
+function ensure_user_compliance_columns(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+
+    if (db_driver() === 'sqlite') {
+        $columns = db()->query('PRAGMA table_info(users)')->fetchAll();
+        $existing = array_column($columns, 'name');
+
+        if (!in_array('age_confirmed_at', $existing, true)) {
+            db()->exec('ALTER TABLE users ADD COLUMN age_confirmed_at TEXT NULL');
+        }
+        if (!in_array('terms_accepted_at', $existing, true)) {
+            db()->exec('ALTER TABLE users ADD COLUMN terms_accepted_at TEXT NULL');
+        }
+
+        $checked = true;
+        return;
+    }
+
+    $ageColumn = db()->query("SHOW COLUMNS FROM users LIKE 'age_confirmed_at'");
+    if (!$ageColumn->fetch()) {
+        db()->exec('ALTER TABLE users ADD COLUMN age_confirmed_at DATETIME NULL AFTER status');
+    }
+
+    $termsColumn = db()->query("SHOW COLUMNS FROM users LIKE 'terms_accepted_at'");
+    if (!$termsColumn->fetch()) {
+        db()->exec('ALTER TABLE users ADD COLUMN terms_accepted_at DATETIME NULL AFTER age_confirmed_at');
+    }
+
+    $checked = true;
+}
+
+function age_confirmed_user(?array $user = null): ?array
+{
+    $user = $user ?: current_user();
+    if (!$user) {
+        return null;
+    }
+
+    ensure_user_compliance_columns();
+    $statement = db()->prepare('SELECT * FROM users WHERE id = ? LIMIT 1');
+    $statement->execute([$user['id']]);
+
+    return $statement->fetch() ?: null;
+}
+
+function require_adult_confirmed(?array $user = null): array
+{
+    $user = age_confirmed_user($user);
+    if (!$user) {
+        redirect('/login');
+    }
+
+    if (empty($user['age_confirmed_at']) || empty($user['terms_accepted_at'])) {
+        redirect('/age-confirmation');
+    }
+
+    return $user;
+}
+
 function csrf_token(): string
 {
     if (empty($_SESSION['csrf_token'])) {

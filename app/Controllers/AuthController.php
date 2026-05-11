@@ -13,10 +13,24 @@ final class AuthController
 
     public function register(): void
     {
+        ensure_user_compliance_columns();
+
         view('auth/register', [
             'title' => 'Create account',
             'captcha' => $this->captchaPuzzle(),
         ]);
+    }
+
+    public function ageConfirmation(): void
+    {
+        $user = require_auth();
+        $user = age_confirmed_user($user) ?: $user;
+
+        if (!empty($user['age_confirmed_at']) && !empty($user['terms_accepted_at'])) {
+            redirect('/messages');
+        }
+
+        view('auth/age-confirmation', ['title' => 'Adult confirmation']);
     }
 
     public function forgotPassword(): void
@@ -80,13 +94,22 @@ final class AuthController
 
     public function store(): void
     {
+        ensure_user_compliance_columns();
+
         $name = trim((string) ($_POST['name'] ?? ''));
         $email = trim((string) ($_POST['email'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
         $role = (string) ($_POST['role'] ?? 'student');
+        $adultConfirm = isset($_POST['adult_confirm']);
+        $termsAccept = isset($_POST['terms_accept']);
 
         if (!$this->captchaPassed()) {
             flash('error', 'Complete the drag-and-drop verification before creating an account.');
+            redirect('/register');
+        }
+
+        if (!$adultConfirm || !$termsAccept) {
+            flash('error', 'You must confirm you are at least 18 and accept the Terms and Privacy Policy to create an account.');
             redirect('/register');
         }
 
@@ -96,7 +119,8 @@ final class AuthController
         }
 
         $verificationToken = bin2hex(random_bytes(32));
-        $statement = db()->prepare('INSERT INTO users (role, name, email, password, email_verification_token, status) VALUES (?, ?, ?, ?, ?, ?)');
+        $confirmedAt = date('Y-m-d H:i:s');
+        $statement = db()->prepare('INSERT INTO users (role, name, email, password, email_verification_token, status, age_confirmed_at, terms_accepted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
         try {
             $statement->execute([
                 $role,
@@ -105,6 +129,8 @@ final class AuthController
                 password_hash($password, PASSWORD_DEFAULT),
                 token_hash($verificationToken),
                 $role === 'educator' ? 'pending' : 'active',
+                $confirmedAt,
+                $confirmedAt,
             ]);
         } catch (\Throwable) {
             flash('error', 'An account already exists for that email.');
@@ -123,6 +149,23 @@ final class AuthController
         $_SESSION['user_id'] = $userId;
         $this->sendVerificationEmail($email, $verificationToken);
         redirect('/email/verify');
+    }
+
+    public function confirmAge(): void
+    {
+        $user = require_auth();
+        ensure_user_compliance_columns();
+
+        if (!isset($_POST['adult_confirm']) || !isset($_POST['terms_accept'])) {
+            flash('error', 'Confirm you are at least 18 and accept the Terms and Privacy Policy to use messages.');
+            redirect('/age-confirmation');
+        }
+
+        $statement = db()->prepare('UPDATE users SET age_confirmed_at = CURRENT_TIMESTAMP, terms_accepted_at = CURRENT_TIMESTAMP WHERE id = ?');
+        $statement->execute([$user['id']]);
+
+        flash('success', 'Adult confirmation saved.');
+        redirect('/messages');
     }
 
     public function sendResetLink(): void
