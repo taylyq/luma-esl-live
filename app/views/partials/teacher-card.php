@@ -14,7 +14,9 @@
         </div>
         <div class="meta-row">
             <span><?= number_format((float) $teacher['rating'], 1) ?> rating</span>
-            <span>$<?= number_format((float) $teacher['hourly_rate']) ?>/hr</span>
+            <?php if (show_teacher_hourly_rates()): ?>
+                <span>$<?= number_format((float) $teacher['hourly_rate']) ?>/hr</span>
+            <?php endif; ?>
         </div>
         <div class="tag-row">
             <?php foreach (array_slice(array_filter(array_map('trim', explode(',', (string) $teacher['specialties']))), 0, 3) as $specialty): ?>

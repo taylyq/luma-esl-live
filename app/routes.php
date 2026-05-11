@@ -38,6 +38,7 @@ return [
         '/teacher/classes/update' => ['ClassController', 'update'],
         '/teacher/requests/update' => ['ClassController', 'updateRequest'],
         '/admin/admins/create' => ['AdminController', 'createAdmin'],
+        '/admin/settings/update' => ['AdminController', 'updateSettings'],
         '/admin/students/update' => ['AdminController', 'updateStudent'],
         '/admin/educators/update' => ['AdminController', 'updateEducator'],
         '/admin/lessons/create' => ['AdminController', 'createLessonTopic'],

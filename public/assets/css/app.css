@@ -1445,6 +1445,28 @@ textarea:focus {
     border-bottom: 1px solid var(--line);
 }
 
+.admin-setting-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 18px;
+    padding: 18px;
+    border: 1px solid rgba(17, 85, 132, .14);
+    border-radius: 20px;
+    background: rgba(17, 85, 132, .04);
+}
+
+.admin-setting-row strong,
+.admin-setting-row span {
+    display: block;
+}
+
+.admin-setting-row span {
+    margin-top: 4px;
+    color: var(--muted);
+}
+
 .admin-collapsible {
     margin-top: 18px;
 }
@@ -1814,6 +1836,10 @@ textarea:focus {
 
     .admin-row {
         display: flex;
+    }
+
+    .admin-setting-row {
+        grid-template-columns: 1fr;
     }
 
     .admin-lesson-row {

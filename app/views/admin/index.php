@@ -100,6 +100,15 @@
     </details>
     <details class="panel admin-collapsible">
         <summary>Educator management</summary>
+        <form method="post" action="/admin/settings/update" class="admin-setting-row">
+            <input type="hidden" name="_token" value="<?= csrf_token() ?>">
+            <div>
+                <strong>Teacher hourly rate display</strong>
+                <span>Show or hide the per-hour cost on public teacher listings and profiles.</span>
+            </div>
+            <label class="check"><input type="checkbox" name="show_teacher_hourly_rates" value="1" <?= $showTeacherHourlyRates ? 'checked' : '' ?>> Show hourly rates</label>
+            <button class="button button-dark" type="submit">Save setting</button>
+        </form>
         <?php foreach ($educators as $educator): ?>
             <form method="post" action="/admin/educators/update" class="admin-row">
                 <input type="hidden" name="_token" value="<?= csrf_token() ?>">

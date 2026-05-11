@@ -10,6 +10,7 @@ final class AdminController
     {
         require_auth('admin');
         ensure_lesson_topics_table();
+        ensure_site_settings_table();
 
         $stats = [
             'students' => db()->query("SELECT COUNT(*) AS total FROM users WHERE role = 'student'")->fetch()['total'],
@@ -51,6 +52,7 @@ final class AdminController
             'students' => $students,
             'reports' => $reports,
             'lessonTopics' => $lessonTopics,
+            'showTeacherHourlyRates' => show_teacher_hourly_rates(),
         ]);
     }
 
@@ -120,6 +122,33 @@ final class AdminController
         $statement->execute([$status, $studentId]);
 
         flash('success', 'Student updated.');
+        redirect('/admin');
+    }
+
+    public function updateSettings(): void
+    {
+        require_auth('admin');
+        ensure_site_settings_table();
+
+        $showHourlyRates = isset($_POST['show_teacher_hourly_rates']) ? '1' : '0';
+
+        if (db_driver() === 'sqlite') {
+            $statement = db()->prepare(
+                'INSERT INTO site_settings (setting_key, setting_value, updated_at)
+                 VALUES (?, ?, CURRENT_TIMESTAMP)
+                 ON CONFLICT(setting_key) DO UPDATE SET setting_value = excluded.setting_value, updated_at = CURRENT_TIMESTAMP'
+            );
+        } else {
+            $statement = db()->prepare(
+                'INSERT INTO site_settings (setting_key, setting_value)
+                 VALUES (?, ?)
+                 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)'
+            );
+        }
+
+        $statement->execute(['show_teacher_hourly_rates', $showHourlyRates]);
+
+        flash('success', $showHourlyRates === '1' ? 'Teacher hourly rates are visible.' : 'Teacher hourly rates are hidden.');
         redirect('/admin');
     }
 

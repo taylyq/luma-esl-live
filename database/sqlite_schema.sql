@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS message_blocks;
 DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS chats;
 DROP TABLE IF EXISTS availabilities;
+DROP TABLE IF EXISTS site_settings;
 DROP TABLE IF EXISTS lesson_topics;
 DROP TABLE IF EXISTS class_listings;
 DROP TABLE IF EXISTS educator_credentials;
@@ -106,6 +107,15 @@ CREATE TABLE lesson_topics (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE site_settings (
+    setting_key TEXT PRIMARY KEY,
+    setting_value TEXT NOT NULL,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT OR IGNORE INTO site_settings (setting_key, setting_value)
+VALUES ('show_teacher_hourly_rates', '1');
 
 CREATE TABLE chats (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

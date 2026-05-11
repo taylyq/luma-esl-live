@@ -9,7 +9,9 @@
         <div class="profile-stats">
             <div><strong><?= number_format((float) $teacher['rating'], 1) ?></strong><span>rating</span></div>
             <div><strong><?= (int) $teacher['years_experience'] ?> yrs</strong><span>experience</span></div>
-            <div><strong>$<?= number_format((float) $teacher['hourly_rate']) ?></strong><span>per hour</span></div>
+            <?php if (show_teacher_hourly_rates()): ?>
+                <div><strong>$<?= number_format((float) $teacher['hourly_rate']) ?></strong><span>per hour</span></div>
+            <?php endif; ?>
         </div>
         <?php if (current_user() && current_user()['role'] === 'student'): ?>
             <form class="inline-form" method="post" action="/teachers/message">

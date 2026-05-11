@@ -244,6 +244,58 @@ function format_class_price(array $class): string
     return '$' . number_format($price, 2);
 }
 
+function ensure_site_settings_table(): void
+{
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+
+    if (db_driver() === 'sqlite') {
+        db()->exec(
+            "CREATE TABLE IF NOT EXISTS site_settings (
+                setting_key TEXT PRIMARY KEY,
+                setting_value TEXT NOT NULL,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )"
+        );
+    } else {
+        db()->exec(
+            "CREATE TABLE IF NOT EXISTS site_settings (
+                setting_key VARCHAR(120) PRIMARY KEY,
+                setting_value VARCHAR(255) NOT NULL,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )"
+        );
+    }
+
+    $insert = db()->prepare(insert_ignore_sql('site_settings', ['setting_key', 'setting_value']));
+    $insert->execute(['show_teacher_hourly_rates', '1']);
+    $checked = true;
+}
+
+function site_setting(string $key, string $default = ''): string
+{
+    ensure_site_settings_table();
+
+    static $settings = [];
+    if (array_key_exists($key, $settings)) {
+        return $settings[$key];
+    }
+
+    $statement = db()->prepare('SELECT setting_value FROM site_settings WHERE setting_key = ? LIMIT 1');
+    $statement->execute([$key]);
+    $value = $statement->fetchColumn();
+    $settings[$key] = $value === false ? $default : (string) $value;
+
+    return $settings[$key];
+}
+
+function show_teacher_hourly_rates(): bool
+{
+    return site_setting('show_teacher_hourly_rates', '1') === '1';
+}
+
 function ensure_class_price_currency_column(): void
 {
     static $checked = false;
