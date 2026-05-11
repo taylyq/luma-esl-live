@@ -8,6 +8,8 @@ final class PageController
 {
     public function home(): void
     {
+        ensure_class_price_currency_column();
+
         $teachers = db()->query(
             "SELECT ep.*, u.name,
                 COALESCE((SELECT AVG(r.rating) FROM reviews r WHERE r.educator_id = ep.id AND r.status = 'published'), 0) AS rating,
@@ -19,7 +21,24 @@ final class PageController
              LIMIT 3"
         )->fetchAll();
 
-        view('home', ['title' => 'Premium ESL teacher marketplace', 'teachers' => $teachers]);
+        $stats = [
+            'educators' => (int) db()->query("SELECT COUNT(*) FROM educator_profiles WHERE approval_status = 'approved'")->fetchColumn(),
+            'classes' => (int) db()->query(
+                "SELECT COUNT(*)
+                 FROM class_listings cl
+                 JOIN educator_profiles ep ON ep.id = cl.educator_id
+                 WHERE cl.status = 'published'
+                   AND ep.approval_status = 'approved'
+                   AND cl.start_time >= CURRENT_TIMESTAMP"
+            )->fetchColumn(),
+            'reviews' => (int) db()->query("SELECT COUNT(*) FROM reviews WHERE status = 'published'")->fetchColumn(),
+        ];
+
+        view('home', [
+            'title' => 'Premium ESL teacher marketplace',
+            'teachers' => $teachers,
+            'stats' => $stats,
+        ]);
     }
 
     public function pricing(): void
@@ -27,6 +46,8 @@ final class PageController
         ensure_class_price_currency_column();
         $viewer = current_user();
         $viewerId = (int) ($viewer['id'] ?? 0);
+        $startDate = new \DateTimeImmutable('today');
+        $endDate = $startDate->modify('+7 days');
 
         $statement = db()->prepare(
             "SELECT cl.*, ep.id AS educator_id, ep.headline, ep.profile_photo, ep.hourly_rate, ep.verified,
@@ -39,12 +60,12 @@ final class PageController
              WHERE cl.status = 'published'
                 AND ep.approval_status = 'approved'
                 AND (
-                    (cl.start_time >= CURRENT_DATE AND cl.start_time < DATE_ADD(CURRENT_DATE, INTERVAL 7 DAY))
+                    (cl.start_time >= ? AND cl.start_time < ?)
                     OR cl.end_time < CURRENT_TIMESTAMP
                 )
              ORDER BY cl.start_time ASC"
         );
-        $statement->execute([$viewerId]);
+        $statement->execute([$viewerId, $startDate->format('Y-m-d H:i:s'), $endDate->format('Y-m-d H:i:s')]);
 
         $classesByDay = [
             'upcoming' => [],
@@ -64,7 +85,7 @@ final class PageController
         view('pricing', [
             'title' => 'Class calendar',
             'classesByDay' => $classesByDay,
-            'startDate' => new \DateTimeImmutable('today'),
+            'startDate' => $startDate,
         ]);
     }
 
