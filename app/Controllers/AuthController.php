@@ -46,6 +46,12 @@ final class AuthController
         ]);
     }
 
+    public function settings(): void
+    {
+        $user = require_auth();
+        view('auth/settings', ['title' => 'Settings', 'user' => $user]);
+    }
+
     public function verifyNotice(): void
     {
         $token = (string) ($_GET['token'] ?? '');
@@ -221,6 +227,40 @@ final class AuthController
 
         flash('success', 'Password updated. You can sign in now.');
         redirect('/login');
+    }
+
+    public function changePassword(): void
+    {
+        $user = require_auth();
+        $currentPassword = (string) ($_POST['current_password'] ?? '');
+        $password = (string) ($_POST['password'] ?? '');
+        $confirm = (string) ($_POST['password_confirmation'] ?? '');
+
+        $statement = db()->prepare('SELECT id, password FROM users WHERE id = ? LIMIT 1');
+        $statement->execute([$user['id']]);
+        $freshUser = $statement->fetch();
+
+        if (!$freshUser || !password_verify($currentPassword, $freshUser['password'])) {
+            flash('error', 'Current password was not correct.');
+            redirect('/settings');
+        }
+
+        if (strlen($password) < 8 || $password !== $confirm) {
+            flash('error', 'Use a matching new password with at least 8 characters.');
+            redirect('/settings');
+        }
+
+        if (password_verify($password, $freshUser['password'])) {
+            flash('error', 'Choose a new password that is different from your current password.');
+            redirect('/settings');
+        }
+
+        $update = db()->prepare('UPDATE users SET password = ? WHERE id = ?');
+        $update->execute([password_hash($password, PASSWORD_DEFAULT), $user['id']]);
+        session_regenerate_id(true);
+
+        flash('success', 'Password changed successfully.');
+        redirect('/settings');
     }
 
     public function verifyEmail(): void

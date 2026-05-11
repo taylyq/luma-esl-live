@@ -235,6 +235,14 @@ textarea {
     font-weight: 800;
 }
 
+.nav-menu-link {
+    display: inline-flex;
+    justify-content: center;
+    color: var(--blue);
+    font-size: 16px;
+    font-weight: 900;
+}
+
 .language-picker {
     gap: 8px;
     padding-top: 12px;
@@ -1242,6 +1250,47 @@ textarea:focus {
     box-shadow: var(--shadow);
 }
 
+.settings-shell {
+    padding-top: 54px;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: minmax(260px, .72fr) minmax(320px, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.settings-summary {
+    display: grid;
+    gap: 14px;
+}
+
+.settings-summary div {
+    padding: 14px;
+    border: 1px solid rgba(234, 223, 206, .78);
+    border-radius: 16px;
+    background: rgba(255, 248, 236, .58);
+}
+
+.settings-summary span,
+.settings-summary strong {
+    display: block;
+}
+
+.settings-summary span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.settings-summary strong {
+    margin-top: 4px;
+    color: var(--ink);
+}
+
 .profile-copy h1 {
     font-size: clamp(42px, 6vw, 74px);
 }
@@ -1793,6 +1842,7 @@ textarea:focus {
     .profile-layout,
     .directory-layout,
     .dashboard-grid,
+    .settings-grid,
     .split-band {
         grid-template-columns: 1fr;
     }
