@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://source.unsplash.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/app.css?v=20260511-settings-password">
+    <link rel="stylesheet" href="/assets/css/app.css?v=20260514-modern-calendar">
 </head>
 <body>
     <header class="site-header">
@@ -46,11 +46,12 @@
                     <a href="/admin">Admin</a>
                 <?php endif; ?>
                 <details class="nav-account" title="Signed in as <?= e($user['email']) ?>">
-                    <summary>
-                        <span class="nav-user-role"><?= e(ucfirst($user['role'])) ?></span>
+                    <summary class="nav-account-trigger" aria-label="Open account menu">
+                        <span class="nav-profile-icon" aria-hidden="true"></span>
                     </summary>
                     <div class="nav-account-menu">
                         <strong class="nav-user-name"><?= e($user['name']) ?></strong>
+                        <span class="nav-user-role nav-account-role"><?= e(ucfirst($user['role'])) ?></span>
                         <a class="nav-menu-link" href="/settings">Settings</a>
                         <form action="/logout" method="post" class="nav-form">
                             <input type="hidden" name="_token" value="<?= csrf_token() ?>">
@@ -98,7 +99,7 @@
         </div>
     </footer>
     <div id="google_translate_element" aria-hidden="true"></div>
-    <script src="/assets/js/app.js?v=20260511-settings-password" defer></script>
+    <script src="/assets/js/app.js?v=20260514-modern-calendar" defer></script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
 </body>
 </html>
