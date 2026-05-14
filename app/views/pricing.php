@@ -31,14 +31,10 @@ $calendarSections = [
     <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=82" alt="Students learning together in an online English class" width="1800" height="860" fetchpriority="high" decoding="async">
     <div class="calendar-hero-shade" aria-hidden="true"></div>
     <div class="calendar-hero-content">
-        <h1 id="calendar-title">Class calendar</h1>
+        <span class="eyebrow">Class calendar</span>
+        <h1 id="calendar-title">Find a class happening this week.</h1>
+        <p>Browse upcoming Zoom classes from approved LumaESL educators. Sign in to message teachers or request a seat.</p>
     </div>
-</section>
-
-<section class="section narrow center calendar-intro">
-    <span class="eyebrow">Class calendar</span>
-    <h2>Find a class happening this week.</h2>
-    <p class="lede">Browse upcoming Zoom classes from approved LumaESL educators. Sign in to message teachers or request a seat.</p>
 </section>
 
 <?php foreach ($calendarSections as $sectionKey => $section): ?>
