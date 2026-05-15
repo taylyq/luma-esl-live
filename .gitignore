@@ -2,6 +2,7 @@
 
 # Local environment and generated demo data
 .env
+luma-esl.env
 config.local.php
 database/demo.sqlite
 *.sqlite

@@ -30,10 +30,14 @@ spl_autoload_register(function (string $class): void {
 require __DIR__ . '/helpers.php';
 
 $rootPath = dirname(__DIR__);
+$domainRootPath = dirname($rootPath);
+$accountRootPath = dirname($rootPath, 3);
 $envCandidates = array_filter([
     getenv('LUMA_ENV_PATH') ?: null,
-    dirname($rootPath) . '/.env',
-    dirname($rootPath, 3) . '/.env',
+    $accountRootPath . '/luma-esl.env',
+    $domainRootPath . '/luma-esl.env',
+    $domainRootPath . '/.env',
+    $accountRootPath . '/.env',
     $rootPath . '/.env',
 ]);
 $envPath = null;
