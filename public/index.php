@@ -13,7 +13,11 @@ $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 if (isset($GLOBALS['pdo_error'])) {
-    view('error', ['title' => 'Database setup needed', 'message' => $GLOBALS['pdo_error']]);
+    view('error', [
+        'title' => 'Database setup needed',
+        'message' => $GLOBALS['pdo_error'],
+        'details' => $GLOBALS['pdo_setup'] ?? [],
+    ]);
     exit;
 }
 

@@ -14,14 +14,20 @@ function load_env(string $path): void
             continue;
         }
 
+        if (str_starts_with($line, 'export ')) {
+            $line = trim(substr($line, 7));
+        }
+
         [$key, $value] = explode('=', $line, 2);
-        $key = trim($key);
+        $key = ltrim(trim($key), "\xEF\xBB\xBF");
         $value = trim($value);
         $value = trim($value, "\"'");
 
         if (getenv($key) === false) {
             putenv($key . '=' . $value);
             $_ENV[$key] = $value;
+        } elseif (!array_key_exists($key, $_ENV)) {
+            $_ENV[$key] = (string) getenv($key);
         }
     }
 }
@@ -29,11 +35,15 @@ function load_env(string $path): void
 function env_value(string $key, mixed $default = null): mixed
 {
     $value = getenv($key);
-    if ($value === false) {
-        return $default;
+    if ($value !== false) {
+        return $value;
     }
 
-    return $value;
+    if (array_key_exists($key, $_ENV)) {
+        return $_ENV[$key];
+    }
+
+    return $default;
 }
 
 function db(): PDO
