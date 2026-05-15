@@ -2,6 +2,7 @@
 
 # Local environment and generated demo data
 .env
+config.local.php
 database/demo.sqlite
 *.sqlite
 *.sqlite-shm

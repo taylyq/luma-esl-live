@@ -1,6 +1,6 @@
 <?php
 
-return [
+$config = [
     'app_name' => env_value('APP_NAME', 'Luma ESL'),
     'app_url' => env_value('APP_URL', 'https://lumaesl.alpacatravels.com'),
     'app_env' => env_value('APP_ENV', 'production'),
@@ -19,3 +19,13 @@ return [
         'charset' => env_value('DB_CHARSET', 'utf8mb4'),
     ],
 ];
+
+$localConfigPath = __DIR__ . '/config.local.php';
+if (is_file($localConfigPath)) {
+    $localConfig = require $localConfigPath;
+    if (is_array($localConfig)) {
+        $config = array_replace_recursive($config, $localConfig);
+    }
+}
+
+return $config;
