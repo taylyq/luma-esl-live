@@ -46,6 +46,20 @@ function env_value(string $key, mixed $default = null): mixed
     return $default;
 }
 
+function env_location_label(string $publicRoot, string $envPath): string
+{
+    $publicRootPath = realpath($publicRoot) ?: $publicRoot;
+    $realEnvPath = realpath($envPath) ?: $envPath;
+    $publicRootPath = rtrim(str_replace('\\', '/', $publicRootPath), '/') . '/';
+    $realEnvPath = str_replace('\\', '/', $realEnvPath);
+
+    if (str_starts_with($realEnvPath, $publicRootPath)) {
+        return 'Found in public_html';
+    }
+
+    return 'Found outside public_html';
+}
+
 function db(): PDO
 {
     if (!isset($GLOBALS['pdo'])) {

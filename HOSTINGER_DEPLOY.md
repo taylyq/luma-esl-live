@@ -90,8 +90,10 @@ main
 After deployment, create this file in Hostinger File Manager:
 
 ```text
-public_html/.env
+/home/u223591156/domains/lumaesl.alpacatravels.com/.env
 ```
+
+This keeps the database password outside the public web root. The app will also check the Hostinger account home folder and only falls back to `public_html/.env` for older deployments.
 
 Use `.env.hostinger.example` as the template:
 
@@ -154,7 +156,7 @@ Open your domain and test:
 
 If you see "Database setup needed":
 
-- Check `.env` exists at `public_html/.env`.
+- Check `.env` exists outside `public_html`, preferably at `/home/u223591156/domains/lumaesl.alpacatravels.com/.env`.
 - Check `DB_DRIVER=mysql`.
 - Check database name, username, password, and host.
 - Confirm `database/hostinger_live_demo.sql` was imported.

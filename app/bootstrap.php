@@ -30,8 +30,21 @@ spl_autoload_register(function (string $class): void {
 require __DIR__ . '/helpers.php';
 
 $rootPath = dirname(__DIR__);
-$envPath = $rootPath . '/.env';
-load_env($envPath);
+$envCandidates = array_filter([
+    getenv('LUMA_ENV_PATH') ?: null,
+    dirname($rootPath) . '/.env',
+    dirname($rootPath, 3) . '/.env',
+    $rootPath . '/.env',
+]);
+$envPath = null;
+
+foreach ($envCandidates as $candidate) {
+    if (is_file($candidate)) {
+        $envPath = $candidate;
+        load_env($candidate);
+        break;
+    }
+}
 
 $config = require $rootPath . '/config.php';
 
@@ -55,7 +68,7 @@ try {
     $GLOBALS['pdo_error'] = 'Database connection failed. Check the details below and storage/database-error.log on Hostinger.';
     $GLOBALS['pdo_setup'] = [
         'reason' => $safeReason,
-        'env_file' => is_file($envPath) ? 'Found' : 'Missing',
+        'env_file' => $envPath ? env_location_label($rootPath, $envPath) : 'Missing',
         'driver' => (string) ($dbConfig['driver'] ?? ''),
         'host' => (string) ($dbConfig['host'] ?? ''),
         'port' => (string) ($dbConfig['port'] ?? ''),
