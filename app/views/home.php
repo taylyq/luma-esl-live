@@ -62,22 +62,6 @@
     </article>
 </section>
 
-<section class="section">
-    <div class="section-heading">
-        <span class="eyebrow">Featured educators</span>
-        <h2>Clear profiles. Real availability. No guesswork.</h2>
-    </div>
-    <?php if ($teachers): ?>
-        <div class="teacher-grid">
-            <?php foreach ($teachers as $teacher): ?>
-                <?php require __DIR__ . '/partials/teacher-card.php'; ?>
-            <?php endforeach; ?>
-        </div>
-    <?php else: ?>
-        <div class="empty-state">Approved teacher profiles will appear here soon.</div>
-    <?php endif; ?>
-</section>
-
 <section class="section split-band home-flow">
     <div>
         <span class="eyebrow">How it works</span>
@@ -88,22 +72,5 @@
         <div><span>1</span><strong>Discover</strong><p>Search teachers and upcoming classes by goal, level, class type, and availability.</p></div>
         <div><span>2</span><strong>Connect</strong><p>Use focused messages to ask about teaching style, schedule, and class fit.</p></div>
         <div><span>3</span><strong>Join</strong><p>Request access and join approved Zoom classes from your dashboard.</p></div>
-    </div>
-</section>
-
-<section class="section trust-band official-trust">
-    <div>
-        <span class="eyebrow">Built for trust</span>
-        <h2>Marketplace controls that help protect students, teachers, and class access.</h2>
-    </div>
-    <div class="trust-grid">
-        <div>Admin-reviewed educators</div>
-        <div>Adult-only messaging</div>
-        <div>Email verification</div>
-        <div>Hidden Zoom links</div>
-        <div>Message reports</div>
-        <div>Role-based dashboards</div>
-        <div>Class request approval</div>
-        <div>Teacher photo profiles</div>
     </div>
 </section>

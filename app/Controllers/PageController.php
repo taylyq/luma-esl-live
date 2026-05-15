@@ -10,17 +10,6 @@ final class PageController
     {
         ensure_class_price_currency_column();
 
-        $teachers = db()->query(
-            "SELECT ep.*, u.name,
-                COALESCE((SELECT AVG(r.rating) FROM reviews r WHERE r.educator_id = ep.id AND r.status = 'published'), 0) AS rating,
-                (SELECT COUNT(*) FROM reviews r WHERE r.educator_id = ep.id AND r.status = 'published') AS review_count
-             FROM educator_profiles ep
-             JOIN users u ON u.id = ep.user_id
-             WHERE ep.approval_status = 'approved'
-             ORDER BY ep.verified DESC, rating DESC
-             LIMIT 3"
-        )->fetchAll();
-
         $stats = [
             'educators' => (int) db()->query("SELECT COUNT(*) FROM educator_profiles WHERE approval_status = 'approved'")->fetchColumn(),
             'classes' => (int) db()->query(
@@ -36,7 +25,6 @@ final class PageController
 
         view('home', [
             'title' => 'Premium ESL teacher marketplace',
-            'teachers' => $teachers,
             'stats' => $stats,
         ]);
     }

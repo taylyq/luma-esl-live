@@ -611,6 +611,10 @@ body {
     font-size: 18px;
 }
 
+.home-flow {
+    margin-top: -28px;
+}
+
 .section,
 .page-hero,
 .app-shell {
