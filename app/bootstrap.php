@@ -39,8 +39,22 @@ try {
     $GLOBALS['pdo'] = App\Database::connect($config['db']);
 } catch (Throwable $exception) {
     $dbConfig = $config['db'] ?? [];
-    $GLOBALS['pdo_error'] = 'Database connection failed. Check your Hostinger MySQL credentials and the server storage/database-error.log file.';
+    $rawMessage = $exception->getMessage();
+    $safeReason = 'Connection failed';
+
+    if (str_contains($rawMessage, 'Access denied')) {
+        $safeReason = 'Access denied. The database username or password is incorrect, or the user is not assigned to this database.';
+    } elseif (str_contains($rawMessage, 'Unknown database')) {
+        $safeReason = 'Unknown database. The database name does not exist on this Hostinger account.';
+    } elseif (str_contains($rawMessage, 'Connection refused') || str_contains($rawMessage, 'No such file or directory')) {
+        $safeReason = 'Cannot reach MySQL. The host or port is not correct for this hosting account.';
+    } elseif (str_contains($rawMessage, 'could not find driver')) {
+        $safeReason = 'PHP MySQL driver is missing. Enable the PDO MySQL extension in Hostinger PHP settings.';
+    }
+
+    $GLOBALS['pdo_error'] = 'Database connection failed. Check the details below and storage/database-error.log on Hostinger.';
     $GLOBALS['pdo_setup'] = [
+        'reason' => $safeReason,
         'env_file' => is_file($envPath) ? 'Found' : 'Missing',
         'driver' => (string) ($dbConfig['driver'] ?? ''),
         'host' => (string) ($dbConfig['host'] ?? ''),
