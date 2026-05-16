@@ -304,14 +304,45 @@ final class AdminController
             mkdir($directory, 0775, true);
         }
 
-        $filename = 'lesson-' . bin2hex(random_bytes(12)) . '.' . $extensions[$mime];
+        $filename = $this->safeOriginalLessonFilename((string) ($file['name'] ?? ''), $mime, $extensions);
         $destination = $directory . '/' . $filename;
+        if (is_file($destination) && !is_writable($destination)) {
+            flash('error', 'The existing lesson image could not be replaced.');
+            redirect('/admin');
+        }
+
         if (!move_uploaded_file($file['tmp_name'], $destination)) {
             flash('error', 'The lesson image could not be saved.');
             redirect('/admin');
         }
 
         return '/assets/img/lessons/' . $filename;
+    }
+
+    private function safeOriginalLessonFilename(string $originalName, string $mime, array $extensions): string
+    {
+        $fallbackExtension = $extensions[$mime] ?? 'jpg';
+        $originalName = basename(str_replace('\\', '/', $originalName));
+        $originalName = trim((string) preg_replace('/[^\w.\- ]+/', '-', $originalName));
+        $originalName = trim((string) preg_replace('/\s+/', ' ', $originalName));
+
+        if ($originalName === '' || $originalName === '.' || $originalName === '..') {
+            return 'lesson-image.' . $fallbackExtension;
+        }
+
+        $name = pathinfo($originalName, PATHINFO_FILENAME) ?: 'lesson-image';
+        $submittedExtension = strtolower((string) pathinfo($originalName, PATHINFO_EXTENSION));
+        $matchingExtensions = [
+            'image/jpeg' => ['jpg', 'jpeg'],
+            'image/png' => ['png'],
+            'image/webp' => ['webp'],
+        ];
+
+        $extension = in_array($submittedExtension, $matchingExtensions[$mime] ?? [], true)
+            ? $submittedExtension
+            : $fallbackExtension;
+
+        return $name . '.' . $extension;
     }
 
     private function nestedLessonUpload(int $topicId): ?array

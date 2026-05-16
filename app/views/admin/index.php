@@ -32,13 +32,17 @@
     </div>
     <details class="panel admin-collapsible" open>
         <summary>Lesson topics</summary>
-        <form method="post" action="/admin/lessons/create" class="form-grid admin-lesson-form" enctype="multipart/form-data">
+        <form method="post" action="/admin/lessons/create" class="form-grid admin-lesson-form" enctype="multipart/form-data" data-upload-progress>
             <input type="hidden" name="_token" value="<?= csrf_token() ?>">
             <label>Unit<input name="unit" list="lesson-units" required></label>
             <label>Topic<input name="topic" required></label>
             <label>Sort order<input name="sort_order" type="number" min="0" value="<?= count($lessonTopics) + 1 ?>"></label>
-            <label>Image URL or search phrase<input name="image_url" placeholder="/assets/img/lessons/example.jpeg" required></label>
+            <label>Image URL or search phrase<input name="image_url" placeholder="/assets/img/lessons/example.jpeg"></label>
             <label class="span-2">Upload image<input name="image_upload" type="file" accept="image/jpeg,image/png,image/webp"></label>
+            <div class="upload-status span-2" data-upload-status hidden>
+                <div><strong data-upload-title>Preparing upload</strong><span data-upload-text>Waiting for selected image...</span></div>
+                <div class="upload-meter"><span data-upload-bar></span></div>
+            </div>
             <button class="button button-dark span-2" type="submit">Create lesson topic</button>
         </form>
         <datalist id="lesson-units">
@@ -48,7 +52,7 @@
             <option value="Play, sports, and hobbies">
             <option value="Community and nature">
         </datalist>
-        <form method="post" action="/admin/lessons/bulk-update" enctype="multipart/form-data">
+        <form method="post" action="/admin/lessons/bulk-update" enctype="multipart/form-data" data-upload-progress>
             <input type="hidden" name="_token" value="<?= csrf_token() ?>">
             <div class="admin-lesson-list">
                 <?php foreach ($lessonTopics as $topic): ?>
@@ -62,6 +66,10 @@
                         <label class="check danger"><input type="checkbox" name="topics[<?= (int) $topic['id'] ?>][delete]" value="1"> Delete</label>
                     </div>
                 <?php endforeach; ?>
+            </div>
+            <div class="upload-status top-gap" data-upload-status hidden>
+                <div><strong data-upload-title>Preparing upload</strong><span data-upload-text>Waiting for selected images...</span></div>
+                <div class="upload-meter"><span data-upload-bar></span></div>
             </div>
             <button class="button button-dark full top-gap" type="submit">Save all lesson topics</button>
         </form>

@@ -74,6 +74,95 @@ document.querySelectorAll('.flash').forEach((flash) => {
     }, 2800);
 });
 
+document.querySelectorAll('[data-upload-progress]').forEach((form) => {
+    if (!(form instanceof HTMLFormElement)) return;
+
+    const status = form.querySelector('[data-upload-status]');
+    const title = form.querySelector('[data-upload-title]');
+    const text = form.querySelector('[data-upload-text]');
+    const bar = form.querySelector('[data-upload-bar]');
+    const fileInputs = Array.from(form.querySelectorAll('input[type="file"]'));
+
+    function selectedFiles() {
+        return fileInputs.flatMap((input) => Array.from(input.files || []));
+    }
+
+    function setUploadStatus(nextTitle, nextText, percent = 0, mode = '') {
+        if (status instanceof HTMLElement) {
+            status.hidden = false;
+            status.dataset.state = mode;
+        }
+        if (title) title.textContent = nextTitle;
+        if (text) text.textContent = nextText;
+        if (bar instanceof HTMLElement) {
+            bar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+        }
+    }
+
+    fileInputs.forEach((input) => {
+        input.addEventListener('change', () => {
+            const files = selectedFiles();
+            if (!files.length) {
+                if (status instanceof HTMLElement) status.hidden = true;
+                return;
+            }
+
+            const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+            const fileNames = files.map((file) => file.name).join(', ');
+            const sizeMb = (totalSize / 1024 / 1024).toFixed(2);
+            setUploadStatus(`${files.length} file${files.length === 1 ? '' : 's'} ready`, `${fileNames} · ${sizeMb} MB`, 0, 'ready');
+        });
+    });
+
+    form.addEventListener('submit', (event) => {
+        const files = selectedFiles();
+        if (!files.length) return;
+
+        event.preventDefault();
+        const xhr = new XMLHttpRequest();
+        const formData = new FormData(form);
+        const submitButtons = Array.from(form.querySelectorAll('button[type="submit"]'));
+
+        submitButtons.forEach((button) => {
+            button.disabled = true;
+        });
+        setUploadStatus('Uploading lesson images', 'Starting upload...', 2, 'uploading');
+
+        xhr.upload.addEventListener('progress', (progressEvent) => {
+            if (!progressEvent.lengthComputable) {
+                setUploadStatus('Uploading lesson images', 'Uploading...', 35, 'uploading');
+                return;
+            }
+
+            const percent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+            setUploadStatus('Uploading lesson images', `${percent}% complete`, percent, 'uploading');
+        });
+
+        xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 400) {
+                setUploadStatus('Upload complete', 'Saving changes...', 100, 'complete');
+                window.location.href = xhr.responseURL || '/admin';
+                return;
+            }
+
+            submitButtons.forEach((button) => {
+                button.disabled = false;
+            });
+            setUploadStatus('Upload failed', 'Please try again.', 100, 'error');
+        });
+
+        xhr.addEventListener('error', () => {
+            submitButtons.forEach((button) => {
+                button.disabled = false;
+            });
+            setUploadStatus('Upload failed', 'Network error. Please try again.', 100, 'error');
+        });
+
+        xhr.open((form.method || 'POST').toUpperCase(), form.action);
+        xhr.send(formData);
+    });
+});
+
 const languageSelects = Array.from(document.querySelectorAll('[data-language-select]'));
 
 function setTranslateCookie(language) {
