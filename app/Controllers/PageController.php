@@ -8,25 +8,11 @@ final class PageController
 {
     public function home(): void
     {
-        ensure_class_price_currency_column();
+        if (current_user()) {
+            redirect('/dashboard');
+        }
 
-        $stats = [
-            'educators' => (int) db()->query("SELECT COUNT(*) FROM educator_profiles WHERE approval_status = 'approved'")->fetchColumn(),
-            'classes' => (int) db()->query(
-                "SELECT COUNT(*)
-                 FROM class_listings cl
-                 JOIN educator_profiles ep ON ep.id = cl.educator_id
-                 WHERE cl.status = 'published'
-                   AND ep.approval_status = 'approved'
-                   AND cl.start_time >= CURRENT_TIMESTAMP"
-            )->fetchColumn(),
-            'reviews' => (int) db()->query("SELECT COUNT(*) FROM reviews WHERE status = 'published'")->fetchColumn(),
-        ];
-
-        view('home', [
-            'title' => 'Premium ESL teacher marketplace',
-            'stats' => $stats,
-        ]);
+        $this->pricing();
     }
 
     public function pricing(): void

@@ -26,7 +26,7 @@
         <nav class="site-nav" data-nav>
             <a href="/teachers" class="<?= route_is('/teachers') ? 'active' : '' ?>">Teachers</a>
             <a href="/lessons" class="<?= route_is('/lessons') ? 'active' : '' ?>">Lessons</a>
-            <a href="/calendar" class="<?= route_is('/calendar') || route_is('/pricing') ? 'active' : '' ?>">Calendar</a>
+            <a href="/calendar" class="<?= route_is('/') || route_is('/calendar') || route_is('/pricing') ? 'active' : '' ?>">Calendar</a>
             <?php if (!$user): ?>
                 <label class="language-picker nav-language">Language
                     <select data-language-select>
