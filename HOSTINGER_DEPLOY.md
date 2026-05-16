@@ -133,9 +133,10 @@ Make sure these folders are writable by PHP:
 public_html/storage
 public_html/public/uploads
 public_html/public/uploads/teachers
+public_html/public/uploads/lessons
 ```
 
-If `public/uploads/teachers` does not exist yet, create it in File Manager.
+If `public/uploads/teachers` or `public/uploads/lessons` does not exist yet, create it in File Manager.
 
 Recommended permissions:
 
@@ -144,7 +145,9 @@ Recommended permissions:
 644 for files
 ```
 
-If teacher photo uploads fail, set `public/uploads` and `public/uploads/teachers` to `775`.
+If uploads fail, set `public/uploads`, `public/uploads/teachers`, and `public/uploads/lessons` to `775`.
+
+Do not upload lesson images into `public/assets/img/lessons` on the live site. That folder is part of the Git-deployed code and can be replaced on redeploy. Lesson image uploads must live in `public/uploads/lessons`.
 
 ## 7. Live Test Checklist
 
@@ -185,6 +188,7 @@ If routes return 404:
 If uploads fail:
 
 - Create `public/uploads/teachers`.
+- Create `public/uploads/lessons`.
 - Check folder permissions.
 - Keep uploaded photos under 2MB.
 

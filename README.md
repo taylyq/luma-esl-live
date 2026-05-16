@@ -53,6 +53,7 @@ Local email verification and password reset messages are written to `storage/mai
 - Email verification with resend support
 - Password reset links with expiring tokens
 - Teacher profile photo uploads to `public/uploads/teachers`
+- Lesson image uploads to `public/uploads/lessons` so redeploys do not overwrite admin-uploaded images
 - Unread message badges in navigation, dashboards, and chat lists
 - SQLite demo mode plus MySQL production schema
 

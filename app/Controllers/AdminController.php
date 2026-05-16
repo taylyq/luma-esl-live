@@ -299,7 +299,7 @@ final class AdminController
             redirect('/admin');
         }
 
-        $directory = dirname(__DIR__, 2) . '/public/assets/img/lessons';
+        $directory = dirname(__DIR__, 2) . '/public/uploads/lessons';
         if (!is_dir($directory)) {
             mkdir($directory, 0775, true);
         }
@@ -316,7 +316,7 @@ final class AdminController
             redirect('/admin');
         }
 
-        return '/assets/img/lessons/' . $filename;
+        return '/uploads/lessons/' . $filename;
     }
 
     private function safeOriginalLessonFilename(string $originalName, string $mime, array $extensions): string

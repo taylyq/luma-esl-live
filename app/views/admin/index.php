@@ -37,7 +37,7 @@
             <label>Unit<input name="unit" list="lesson-units" required></label>
             <label>Topic<input name="topic" required></label>
             <label>Sort order<input name="sort_order" type="number" min="0" value="<?= count($lessonTopics) + 1 ?>"></label>
-            <label>Image URL or search phrase<input name="image_url" placeholder="/assets/img/lessons/example.jpeg"></label>
+            <label>Image URL or search phrase<input name="image_url" placeholder="/uploads/lessons/example.jpeg"></label>
             <label class="span-2">Upload image<input name="image_upload" type="file" accept="image/jpeg,image/png,image/webp"></label>
             <div class="upload-status span-2" data-upload-status hidden>
                 <div><strong data-upload-title>Preparing upload</strong><span data-upload-text>Waiting for selected image...</span></div>

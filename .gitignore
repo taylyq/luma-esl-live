@@ -22,3 +22,5 @@ public/uploads/*
 !public/uploads/.gitkeep
 !public/uploads/teachers/
 !public/uploads/teachers/.gitkeep
+!public/uploads/lessons/
+!public/uploads/lessons/.gitkeep
