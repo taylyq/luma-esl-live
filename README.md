@@ -52,8 +52,8 @@ Local email verification and password reset messages are written to `storage/mai
 - Environment-driven config with `.env`
 - Email verification with resend support
 - Password reset links with expiring tokens
-- Teacher profile photo uploads to `public/uploads/teachers`
-- Lesson image uploads to `public/uploads/lessons` so redeploys do not overwrite admin-uploaded images
+- Teacher profile photo uploads to an external `luma-esl-uploads/teachers` folder
+- Lesson image uploads to an external `luma-esl-uploads/lessons` folder so redeploys do not overwrite admin-uploaded images
 - Unread message badges in navigation, dashboards, and chat lists
 - SQLite demo mode plus MySQL production schema
 

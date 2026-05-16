@@ -162,7 +162,7 @@ final class TeacherController
             redirect('/teacher/profile');
         }
 
-        $directory = dirname(__DIR__, 2) . '/public/uploads/teachers';
+        $directory = upload_storage_path('teachers');
         if (!is_dir($directory)) {
             mkdir($directory, 0775, true);
         }

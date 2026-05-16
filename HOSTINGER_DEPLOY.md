@@ -121,6 +121,8 @@ DB_DATABASE=your_hostinger_database_name
 DB_USERNAME=your_hostinger_database_user
 DB_PASSWORD=your_hostinger_database_password
 DB_CHARSET=utf8mb4
+
+LUMA_UPLOAD_PATH=/home/u223591156/domains/lumaesl.alpacatravels.com/luma-esl-uploads
 ```
 
 Do not commit `.env`.
@@ -133,10 +135,12 @@ Make sure these folders are writable by PHP:
 public_html/storage
 public_html/public/uploads
 public_html/public/uploads/teachers
-public_html/public/uploads/lessons
+/home/u223591156/domains/lumaesl.alpacatravels.com/luma-esl-uploads
+/home/u223591156/domains/lumaesl.alpacatravels.com/luma-esl-uploads/lessons
+/home/u223591156/domains/lumaesl.alpacatravels.com/luma-esl-uploads/teachers
 ```
 
-If `public/uploads/teachers` or `public/uploads/lessons` does not exist yet, create it in File Manager.
+If the external upload folders do not exist yet, create them in File Manager.
 
 Recommended permissions:
 
@@ -145,9 +149,9 @@ Recommended permissions:
 644 for files
 ```
 
-If uploads fail, set `public/uploads`, `public/uploads/teachers`, and `public/uploads/lessons` to `775`.
+If uploads fail, set `luma-esl-uploads` and `luma-esl-uploads/lessons` to `775`.
 
-Do not upload lesson images into `public/assets/img/lessons` on the live site. That folder is part of the Git-deployed code and can be replaced on redeploy. Lesson image uploads must live in `public/uploads/lessons`.
+Do not upload live images into `public/assets/img/lessons`, `public/uploads/lessons`, or `public/uploads/teachers` on the live site. Those folders are under `public_html` and can be replaced by Hostinger Git deployment. Live uploads must live outside `public_html`, preferably in `luma-esl-uploads/lessons` and `luma-esl-uploads/teachers`.
 
 ## 7. Live Test Checklist
 
@@ -187,8 +191,8 @@ If routes return 404:
 
 If uploads fail:
 
-- Create `public/uploads/teachers`.
-- Create `public/uploads/lessons`.
+- Create `/home/u223591156/domains/lumaesl.alpacatravels.com/luma-esl-uploads/teachers`.
+- Create `/home/u223591156/domains/lumaesl.alpacatravels.com/luma-esl-uploads/lessons`.
 - Check folder permissions.
 - Keep uploaded photos under 2MB.
 

@@ -38,6 +38,16 @@ if (!$handler && preg_match('#^/messages/(\d+)$#', $path, $matches)) {
     $_GET['id'] = $matches[1];
 }
 
+if (!$handler && preg_match('#^/uploads/lessons/(.+)$#', $path, $matches)) {
+    $handler = ['UploadController', 'lesson'];
+    $_GET['filename'] = $matches[1];
+}
+
+if (!$handler && preg_match('#^/uploads/teachers/(.+)$#', $path, $matches)) {
+    $handler = ['UploadController', 'teacher'];
+    $_GET['filename'] = $matches[1];
+}
+
 if (!$handler) {
     http_response_code(404);
     view('error', ['title' => 'Page not found', 'message' => 'The page you requested does not exist.']);

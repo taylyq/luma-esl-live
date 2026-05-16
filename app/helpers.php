@@ -60,6 +60,24 @@ function env_location_label(string $publicRoot, string $envPath): string
     return 'Found outside public_html';
 }
 
+function upload_storage_root(): string
+{
+    $configuredPath = trim((string) env_value('LUMA_UPLOAD_PATH', ''));
+    if ($configuredPath !== '') {
+        return rtrim($configuredPath, '/\\');
+    }
+
+    return dirname(__DIR__, 2) . '/luma-esl-uploads';
+}
+
+function upload_storage_path(string $folder = ''): string
+{
+    $root = upload_storage_root();
+    $folder = trim($folder, '/\\');
+
+    return $folder === '' ? $root : $root . '/' . $folder;
+}
+
 function db(): PDO
 {
     if (!isset($GLOBALS['pdo'])) {

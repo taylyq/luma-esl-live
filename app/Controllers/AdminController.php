@@ -299,7 +299,7 @@ final class AdminController
             redirect('/admin');
         }
 
-        $directory = dirname(__DIR__, 2) . '/public/uploads/lessons';
+        $directory = upload_storage_path('lessons');
         if (!is_dir($directory)) {
             mkdir($directory, 0775, true);
         }
