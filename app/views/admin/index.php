@@ -117,6 +117,38 @@
             <label class="check"><input type="checkbox" name="show_teacher_hourly_rates" value="1" <?= $showTeacherHourlyRates ? 'checked' : '' ?>> Show hourly rates</label>
             <button class="button button-dark" type="submit">Save setting</button>
         </form>
+        <form method="post" action="/admin/educators/photos/bulk-update" enctype="multipart/form-data" data-upload-progress>
+            <input type="hidden" name="_token" value="<?= csrf_token() ?>">
+            <div class="section-heading compact">
+                <span class="eyebrow">Teacher profile images</span>
+                <h2>Upload, replace, or clear teacher photos.</h2>
+            </div>
+            <div class="admin-teacher-photo-list">
+                <?php foreach ($educators as $educator): ?>
+                    <?php
+                    $profilePhoto = trim((string) ($educator['profile_photo'] ?? ''));
+                    $previewPhoto = $profilePhoto !== ''
+                        ? $profilePhoto
+                        : 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=180&q=70';
+                    ?>
+                    <div class="admin-teacher-photo-row">
+                        <img src="<?= e($previewPhoto) ?>" alt="<?= e($educator['name']) ?> profile image">
+                        <div>
+                            <strong><?= e($educator['name']) ?></strong>
+                            <span><?= e($educator['email']) ?></span>
+                        </div>
+                        <label>Image path<input name="educators[<?= (int) $educator['id'] ?>][profile_photo]" value="<?= e($profilePhoto) ?>" placeholder="/uploads/teachers/photo.jpg"></label>
+                        <label>Replace<input name="profile_photo_upload[<?= (int) $educator['id'] ?>]" type="file" accept="image/jpeg,image/png,image/webp"></label>
+                        <label class="check danger"><input type="checkbox" name="educators[<?= (int) $educator['id'] ?>][clear_photo]" value="1"> Clear</label>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <div class="upload-status top-gap" data-upload-status hidden>
+                <div><strong data-upload-title>Preparing upload</strong><span data-upload-text>Waiting for selected teacher images...</span></div>
+                <div class="upload-meter"><span data-upload-bar></span></div>
+            </div>
+            <button class="button button-dark full top-gap" type="submit">Save all teacher profile images</button>
+        </form>
         <?php foreach ($educators as $educator): ?>
             <form method="post" action="/admin/educators/update" class="admin-row">
                 <input type="hidden" name="_token" value="<?= csrf_token() ?>">

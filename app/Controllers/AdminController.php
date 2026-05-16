@@ -109,6 +109,48 @@ final class AdminController
         redirect('/admin');
     }
 
+    public function bulkUpdateEducatorPhotos(): void
+    {
+        require_auth('admin');
+
+        $educators = $_POST['educators'] ?? [];
+        if (!is_array($educators)) {
+            redirect('/admin');
+        }
+
+        $update = db()->prepare('UPDATE educator_profiles SET profile_photo = ? WHERE id = ?');
+        $saved = 0;
+        $cleared = 0;
+
+        foreach ($educators as $profileId => $profileData) {
+            $profileId = (int) $profileId;
+            if ($profileId <= 0 || !is_array($profileData)) {
+                continue;
+            }
+
+            $photo = trim((string) ($profileData['profile_photo'] ?? ''));
+            $uploadedFile = $this->nestedEducatorPhotoUpload($profileId);
+            if ($uploadedFile !== null) {
+                $photo = $this->storeEducatorProfilePhoto($uploadedFile);
+            }
+
+            if (!empty($profileData['clear_photo'])) {
+                $photo = '';
+                $cleared++;
+            }
+
+            try {
+                $update->execute([$photo, $profileId]);
+                $saved++;
+            } catch (\Throwable) {
+                continue;
+            }
+        }
+
+        flash('success', "Teacher profile images updated. Saved {$saved}, cleared {$cleared}.");
+        redirect('/admin');
+    }
+
     public function updateStudent(): void
     {
         require_auth('admin');
@@ -345,6 +387,50 @@ final class AdminController
         return $name . '.' . $extension;
     }
 
+    private function storeEducatorProfilePhoto(array $file): string
+    {
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            flash('error', 'The teacher profile image upload failed.');
+            redirect('/admin');
+        }
+
+        if (($file['size'] ?? 0) > 2 * 1024 * 1024) {
+            flash('error', 'Teacher profile images must be smaller than 2MB.');
+            redirect('/admin');
+        }
+
+        $mime = mime_content_type($file['tmp_name']);
+        $extensions = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+        ];
+
+        if (!isset($extensions[$mime])) {
+            flash('error', 'Upload a JPG, PNG, or WebP teacher profile image.');
+            redirect('/admin');
+        }
+
+        $directory = upload_storage_path('teachers');
+        if (!is_dir($directory)) {
+            mkdir($directory, 0775, true);
+        }
+
+        $filename = $this->safeOriginalLessonFilename((string) ($file['name'] ?? ''), $mime, $extensions);
+        $destination = $directory . '/' . $filename;
+        if (is_file($destination) && !is_writable($destination)) {
+            flash('error', 'The existing teacher profile image could not be replaced.');
+            redirect('/admin');
+        }
+
+        if (!move_uploaded_file($file['tmp_name'], $destination)) {
+            flash('error', 'The teacher profile image could not be saved.');
+            redirect('/admin');
+        }
+
+        return '/uploads/teachers/' . $filename;
+    }
+
     private function nestedLessonUpload(int $topicId): ?array
     {
         if (empty($_FILES['image_upload']['tmp_name'][$topicId])) {
@@ -357,6 +443,21 @@ final class AdminController
             'tmp_name' => $_FILES['image_upload']['tmp_name'][$topicId],
             'error' => $_FILES['image_upload']['error'][$topicId] ?? UPLOAD_ERR_NO_FILE,
             'size' => $_FILES['image_upload']['size'][$topicId] ?? 0,
+        ];
+    }
+
+    private function nestedEducatorPhotoUpload(int $profileId): ?array
+    {
+        if (empty($_FILES['profile_photo_upload']['tmp_name'][$profileId])) {
+            return null;
+        }
+
+        return [
+            'name' => $_FILES['profile_photo_upload']['name'][$profileId] ?? '',
+            'type' => $_FILES['profile_photo_upload']['type'][$profileId] ?? '',
+            'tmp_name' => $_FILES['profile_photo_upload']['tmp_name'][$profileId],
+            'error' => $_FILES['profile_photo_upload']['error'][$profileId] ?? UPLOAD_ERR_NO_FILE,
+            'size' => $_FILES['profile_photo_upload']['size'][$profileId] ?? 0,
         ];
     }
 
