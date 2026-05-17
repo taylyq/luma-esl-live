@@ -1,5 +1,38 @@
 const navToggle = document.querySelector('[data-nav-toggle]');
 const nav = document.querySelector('[data-nav]');
+const themeToggle = document.querySelector('[data-theme-toggle]');
+
+function applyTheme(theme) {
+    const safeTheme = theme === 'dark' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = safeTheme;
+
+    if (themeToggle) {
+        const isDark = safeTheme === 'dark';
+        themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+        themeToggle.setAttribute('aria-label', isDark ? 'Switch to day mode' : 'Switch to night mode');
+        themeToggle.title = isDark ? 'Switch to day mode' : 'Switch to night mode';
+    }
+}
+
+if (themeToggle) {
+    let savedTheme = 'light';
+    try {
+        savedTheme = localStorage.getItem('luma_theme') === 'dark' ? 'dark' : 'light';
+    } catch (error) {
+        savedTheme = 'light';
+    }
+    applyTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+        const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        try {
+            localStorage.setItem('luma_theme', nextTheme);
+        } catch (error) {
+            // Theme still changes for this page view when storage is unavailable.
+        }
+        applyTheme(nextTheme);
+    });
+}
 
 if (navToggle && nav) {
     navToggle.addEventListener('click', () => {

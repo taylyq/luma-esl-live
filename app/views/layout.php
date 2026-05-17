@@ -11,7 +11,17 @@
     <link rel="preconnect" href="https://source.unsplash.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.png" type="image/png">
-    <link rel="stylesheet" href="/assets/css/app.css?v=20260516-teacher-image-crud">
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('luma_theme') === 'dark' ? 'dark' : 'light';
+                document.documentElement.dataset.theme = theme;
+            } catch (error) {
+                document.documentElement.dataset.theme = 'light';
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="/assets/css/app.css?v=20260518-theme-toggle">
 </head>
 <body>
     <header class="site-header">
@@ -22,7 +32,6 @@
                 <span class="brand-slogan">Speak first. Join with confidence.</span>
             </span>
         </a>
-        <button class="nav-toggle" type="button" data-nav-toggle aria-label="Open navigation">☰</button>
         <nav class="site-nav" data-nav>
             <a href="/teachers" class="<?= route_is('/teachers') ? 'active' : '' ?>">Teachers</a>
             <a href="/lessons" class="<?= route_is('/lessons') ? 'active' : '' ?>">Lessons</a>
@@ -71,6 +80,14 @@
                 <a class="button button-dark" href="/register">Get started</a>
             <?php endif; ?>
         </nav>
+        <div class="header-controls">
+            <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to night mode" aria-pressed="false">
+                <span class="theme-toggle-moon" aria-hidden="true"></span>
+                <span class="theme-toggle-sun" aria-hidden="true"></span>
+                <span class="theme-toggle-thumb" aria-hidden="true"></span>
+            </button>
+            <button class="nav-toggle" type="button" data-nav-toggle aria-label="Open navigation">☰</button>
+        </div>
     </header>
 
     <?php if ($message = flash('success')): ?>
@@ -99,7 +116,7 @@
         </div>
     </footer>
     <div id="google_translate_element" aria-hidden="true"></div>
-    <script src="/assets/js/app.js?v=20260516-teacher-image-crud" defer></script>
+    <script src="/assets/js/app.js?v=20260518-theme-toggle" defer></script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
 </body>
 </html>

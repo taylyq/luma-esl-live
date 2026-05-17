@@ -30,7 +30,7 @@
             <?php endforeach; ?>
         </article>
     </div>
-    <details class="panel admin-collapsible" open>
+    <details class="panel admin-collapsible">
         <summary>Lesson topics</summary>
         <form method="post" action="/admin/lessons/create" class="form-grid admin-lesson-form" enctype="multipart/form-data" data-upload-progress>
             <input type="hidden" name="_token" value="<?= csrf_token() ?>">
