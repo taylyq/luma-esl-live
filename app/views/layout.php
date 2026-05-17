@@ -21,7 +21,7 @@
             }
         })();
     </script>
-    <link rel="stylesheet" href="/assets/css/app.css?v=20260518-theme-toggle">
+    <link rel="stylesheet" href="/assets/css/app.css?v=20260518-theme-toggle-2">
 </head>
 <body>
     <header class="site-header">
@@ -52,7 +52,7 @@
                     <a href="/teacher/classes">Classes</a>
                 <?php endif; ?>
                 <?php if ($user['role'] === 'admin'): ?>
-                    <a href="/admin">Admin</a>
+                    <a href="/admin">Manage</a>
                 <?php endif; ?>
                 <details class="nav-account" title="Signed in as <?= e($user['email']) ?>">
                     <summary class="nav-account-trigger" aria-label="Open account menu">
@@ -116,7 +116,7 @@
         </div>
     </footer>
     <div id="google_translate_element" aria-hidden="true"></div>
-    <script src="/assets/js/app.js?v=20260518-theme-toggle" defer></script>
+    <script src="/assets/js/app.js?v=20260518-theme-toggle-2" defer></script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
 </body>
 </html>

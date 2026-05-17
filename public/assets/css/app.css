@@ -409,13 +409,19 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
-    width: 76px;
-    height: 40px;
-    padding: 0 9px;
-    border: 1px solid rgba(7, 84, 138, .08);
+    width: 86px;
+    height: 42px;
+    padding: 0 10px;
+    border: 1px solid rgba(255, 255, 255, .78);
     border-radius: 999px;
-    background: linear-gradient(145deg, #f5f0f7, #ebe8f1);
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, .9), 0 10px 24px rgba(52, 42, 28, .1);
+    background:
+        radial-gradient(circle at 82% 56%, rgba(255, 255, 255, .92), transparent 27px),
+        linear-gradient(145deg, #faf9ff 0%, #eeeeF7 55%, #e3e0ea 100%);
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, .96),
+        inset 0 -1px 3px rgba(165, 158, 174, .16),
+        0 0 0 1px rgba(7, 84, 138, .03),
+        0 10px 24px rgba(52, 42, 28, .1);
     cursor: pointer;
     transition: background .22s ease, border-color .22s ease, box-shadow .22s ease;
 }
@@ -423,25 +429,29 @@ body {
 .theme-toggle::after {
     content: "";
     position: absolute;
-    right: 13px;
-    bottom: 4px;
+    right: 16px;
+    bottom: 5px;
+    z-index: 3;
     width: 28px;
-    height: 4px;
+    height: 5px;
     border-radius: 999px;
-    background: var(--gold-deep);
+    background: #ff8d3a;
+    box-shadow: 0 4px 10px rgba(255, 141, 58, .28);
     transition: right .22s ease, background .22s ease;
 }
 
 .theme-toggle-thumb {
     position: absolute;
-    right: 7px;
-    top: 5px;
+    right: 5px;
+    top: 4px;
     z-index: 1;
-    width: 30px;
-    height: 30px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, .86);
-    box-shadow: 0 8px 16px rgba(33, 28, 45, .18);
+    width: 34px;
+    height: 34px;
+    border-radius: 17px;
+    background: linear-gradient(145deg, #ffffff, #f5f4fa);
+    box-shadow:
+        0 10px 22px rgba(33, 28, 45, .2),
+        inset 0 1px 1px rgba(255, 255, 255, .94);
     transition: transform .22s ease, background .22s ease;
 }
 
@@ -450,26 +460,26 @@ body {
     position: relative;
     z-index: 2;
     display: inline-block;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     pointer-events: none;
 }
 
 .theme-toggle-moon::before {
     content: "";
     position: absolute;
-    inset: 2px 1px 2px 4px;
+    inset: 3px 2px 3px 5px;
     border-radius: 999px;
-    background: #a9a8b2;
-    box-shadow: 7px 0 0 #f1eef6;
+    background: #a6a5af;
+    box-shadow: 7px 0 0 #f3f1f8;
 }
 
 .theme-toggle-sun::before,
 .theme-toggle-sun::after {
     content: "";
     position: absolute;
-    inset: 5px;
-    border: 4px solid #272527;
+    inset: 6px;
+    border: 4px solid #222125;
     border-radius: 999px;
 }
 
@@ -477,26 +487,32 @@ body {
     inset: 0;
     border: 0;
     background:
-        linear-gradient(#272527, #272527) 50% 0 / 3px 5px no-repeat,
-        linear-gradient(#272527, #272527) 50% 100% / 3px 5px no-repeat,
-        linear-gradient(90deg, #272527, #272527) 0 50% / 5px 3px no-repeat,
-        linear-gradient(90deg, #272527, #272527) 100% 50% / 5px 3px no-repeat;
+        linear-gradient(#222125, #222125) 50% 0 / 3px 5px no-repeat,
+        linear-gradient(#222125, #222125) 50% 100% / 3px 5px no-repeat,
+        linear-gradient(90deg, #222125, #222125) 0 50% / 5px 3px no-repeat,
+        linear-gradient(90deg, #222125, #222125) 100% 50% / 5px 3px no-repeat;
 }
 
 :root[data-theme="dark"] .theme-toggle {
-    border-color: rgba(142, 208, 255, .18);
-    background: linear-gradient(145deg, #17283a, #0d1c2b);
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, .08), 0 10px 24px rgba(0, 0, 0, .3);
+    border-color: rgba(255, 255, 255, .16);
+    background:
+        radial-gradient(circle at 22% 56%, rgba(220, 231, 242, .24), transparent 27px),
+        linear-gradient(145deg, #26313f 0%, #172232 58%, #0c1522 100%);
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, .08),
+        inset 0 -1px 3px rgba(0, 0, 0, .18),
+        0 0 18px rgba(255, 255, 255, .12),
+        0 10px 24px rgba(0, 0, 0, .3);
 }
 
 :root[data-theme="dark"] .theme-toggle::after {
-    right: 35px;
-    background: var(--blue);
+    right: 42px;
+    background: #ff8d3a;
 }
 
 :root[data-theme="dark"] .theme-toggle-thumb {
-    transform: translateX(-36px);
-    background: rgba(223, 242, 255, .94);
+    transform: translateX(-42px);
+    background: linear-gradient(145deg, #f8fbff, #dce6f1);
 }
 
 :root[data-theme="dark"] .theme-toggle-moon::before {
