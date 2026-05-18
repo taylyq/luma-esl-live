@@ -464,19 +464,22 @@ body {
 .theme-toggle-sun::after {
     content: "";
     position: absolute;
-    left: 10px;
-    top: 10px;
-    width: 10px;
-    height: 10px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.theme-toggle-sun::before {
+    width: 13px;
+    height: 13px;
+    box-sizing: border-box;
     border: 2px solid #f59e0b;
     border-radius: 999px;
 }
 
 .theme-toggle-sun::after {
-    left: 5px;
-    top: 5px;
-    width: 20px;
-    height: 20px;
+    width: 23px;
+    height: 23px;
     border: 0;
     background:
         linear-gradient(#f59e0b, #f59e0b) 50% 0 / 2px 4px no-repeat,
