@@ -125,7 +125,39 @@ final class ClassController
     {
         $user = require_auth('student');
         $classId = (int) ($_POST['class_id'] ?? 0);
-        $message = trim((string) ($_POST['message'] ?? 'I would like to join this class.'));
+        $message = substr(trim((string) ($_POST['message'] ?? 'I would like to join this class.')), 0, 1000);
+
+        $class = db()->prepare(
+            "SELECT cl.id, cl.capacity,
+                    (SELECT COUNT(*) FROM enrollments e WHERE e.class_id = cl.id) AS enrolled_count,
+                    EXISTS(SELECT 1 FROM enrollments own_e WHERE own_e.class_id = cl.id AND own_e.student_id = ?) AS already_enrolled
+             FROM class_listings cl
+             JOIN educator_profiles ep ON ep.id = cl.educator_id
+             JOIN users teacher ON teacher.id = ep.user_id
+             WHERE cl.id = ?
+               AND cl.status = 'published'
+               AND cl.start_time > CURRENT_TIMESTAMP
+               AND ep.approval_status = 'approved'
+               AND teacher.status != 'suspended'
+             LIMIT 1"
+        );
+        $class->execute([$user['id'], $classId]);
+        $availableClass = $class->fetch();
+
+        if (!$availableClass) {
+            flash('error', 'That class is no longer available.');
+            redirect('/calendar');
+        }
+
+        if ((int) $availableClass['already_enrolled'] === 1) {
+            flash('success', 'You already have a seat in this class.');
+            redirect('/dashboard');
+        }
+
+        if ((int) $availableClass['enrolled_count'] >= (int) $availableClass['capacity']) {
+            flash('error', 'That class is currently full.');
+            redirect('/calendar');
+        }
 
         $statement = db()->prepare(insert_ignore_sql('class_requests', ['class_id', 'student_id', 'message']));
         $statement->execute([$classId, $user['id'], $message]);
@@ -146,7 +178,9 @@ final class ClassController
         }
 
         $request = db()->prepare(
-            "SELECT cr.*
+            "SELECT cr.*, cl.capacity,
+                    (SELECT COUNT(*) FROM enrollments e WHERE e.class_id = cl.id) AS enrolled_count,
+                    EXISTS(SELECT 1 FROM enrollments own_e WHERE own_e.class_id = cl.id AND own_e.student_id = cr.student_id) AS already_enrolled
              FROM class_requests cr
              JOIN class_listings cl ON cl.id = cr.class_id
              WHERE cr.id = ? AND cl.educator_id = ?
@@ -159,12 +193,30 @@ final class ClassController
             redirect('/teacher/classes');
         }
 
-        $update = db()->prepare('UPDATE class_requests SET status = ? WHERE id = ?');
-        $update->execute([$status, $requestId]);
+        if ($status === 'approved' && (int) $row['already_enrolled'] !== 1 && (int) $row['enrolled_count'] >= (int) $row['capacity']) {
+            flash('error', 'This class is full, so another request cannot be approved.');
+            redirect('/teacher/classes');
+        }
 
-        if ($status === 'approved') {
-            $enroll = db()->prepare(insert_ignore_sql('enrollments', ['class_id', 'student_id']));
-            $enroll->execute([$row['class_id'], $row['student_id']]);
+        $pdo = db();
+        $pdo->beginTransaction();
+        try {
+            $update = $pdo->prepare('UPDATE class_requests SET status = ? WHERE id = ?');
+            $update->execute([$status, $requestId]);
+
+            if ($status === 'approved') {
+                $enroll = $pdo->prepare(insert_ignore_sql('enrollments', ['class_id', 'student_id']));
+                $enroll->execute([$row['class_id'], $row['student_id']]);
+            } else {
+                $removeEnrollment = $pdo->prepare('DELETE FROM enrollments WHERE class_id = ? AND student_id = ?');
+                $removeEnrollment->execute([$row['class_id'], $row['student_id']]);
+            }
+            $pdo->commit();
+        } catch (\Throwable $exception) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $exception;
         }
 
         flash('success', 'Request updated.');
@@ -194,14 +246,22 @@ final class ClassController
 
     private function classFormData(): array
     {
-        $start = trim((string) $_POST['start_time']);
+        $title = trim((string) ($_POST['title'] ?? ''));
+        $description = trim((string) ($_POST['description'] ?? ''));
+        $englishLevel = trim((string) ($_POST['english_level'] ?? ''));
+        $start = trim((string) ($_POST['start_time'] ?? ''));
         $startTimestamp = strtotime($start);
-        if (!$startTimestamp) {
-            flash('error', 'Choose a valid class start time.');
+        if ($title === '' || strlen($title) > 190 || $description === '' || strlen($description) > 5000 || $englishLevel === '' || strlen($englishLevel) > 80) {
+            flash('error', 'Enter a valid title, description, and English level.');
             redirect('/teacher/classes');
         }
 
-        $duration = max(15, (int) ($_POST['duration'] ?? 60));
+        if (!$startTimestamp || $startTimestamp <= time()) {
+            flash('error', 'Choose a class start time in the future.');
+            redirect('/teacher/classes');
+        }
+
+        $duration = min(480, max(15, (int) ($_POST['duration'] ?? 60)));
         $priceCurrency = strtoupper((string) ($_POST['price_currency'] ?? 'USD'));
         if (!in_array($priceCurrency, ['FREE', 'USD', 'VND'], true)) {
             $priceCurrency = 'USD';
@@ -211,18 +271,34 @@ final class ClassController
             $classType = 'private';
         }
 
+        $zoomLink = trim((string) ($_POST['zoom_link'] ?? ''));
+        if ($zoomLink !== '' && !$this->validZoomLink($zoomLink)) {
+            flash('error', 'Use a valid HTTPS Zoom meeting link.');
+            redirect('/teacher/classes');
+        }
+
         return [
-            'title' => trim((string) $_POST['title']),
-            'description' => trim((string) $_POST['description']),
+            'title' => $title,
+            'description' => $description,
             'class_type' => $classType,
-            'english_level' => trim((string) $_POST['english_level']),
-            'capacity' => max(1, (int) $_POST['capacity']),
-            'price' => $priceCurrency === 'FREE' ? 0 : max(0, (float) $_POST['price']),
+            'english_level' => $englishLevel,
+            'capacity' => min(100, max(1, (int) ($_POST['capacity'] ?? 1))),
+            'price' => $priceCurrency === 'FREE' ? 0 : min(999999.99, max(0, (float) ($_POST['price'] ?? 0))),
             'price_currency' => $priceCurrency,
-            'zoom_link' => trim((string) $_POST['zoom_link']),
+            'zoom_link' => $zoomLink,
             'start_time' => date('Y-m-d H:i:s', $startTimestamp),
             'end_time' => date('Y-m-d H:i:s', $startTimestamp + ($duration * 60)),
-            'recurrence_rule' => trim((string) ($_POST['recurrence_rule'] ?? '')),
+            'recurrence_rule' => substr(trim((string) ($_POST['recurrence_rule'] ?? '')), 0, 160),
         ];
+    }
+
+    private function validZoomLink(string $url): bool
+    {
+        if (!filter_var($url, FILTER_VALIDATE_URL) || strtolower((string) parse_url($url, PHP_URL_SCHEME)) !== 'https') {
+            return false;
+        }
+
+        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        return $host === 'zoom.us' || str_ends_with($host, '.zoom.us') || $host === 'zoom.com' || str_ends_with($host, '.zoom.com');
     }
 }

@@ -126,9 +126,18 @@ function current_user(): ?array
         return $user;
     }
 
-    $statement = db()->prepare('SELECT * FROM users WHERE id = ? LIMIT 1');
+    $statement = db()->prepare(
+        'SELECT id, role, name, email, email_verified_at, avatar, status, age_confirmed_at, terms_accepted_at, created_at
+         FROM users WHERE id = ? LIMIT 1'
+    );
     $statement->execute([$_SESSION['user_id']]);
     $user = $statement->fetch() ?: null;
+
+    if ($user && ($user['status'] ?? '') === 'suspended') {
+        unset($_SESSION['user_id']);
+        session_regenerate_id(true);
+        $user = null;
+    }
 
     return $user;
 }
@@ -196,7 +205,10 @@ function age_confirmed_user(?array $user = null): ?array
     }
 
     ensure_user_compliance_columns();
-    $statement = db()->prepare('SELECT * FROM users WHERE id = ? LIMIT 1');
+    $statement = db()->prepare(
+        'SELECT id, role, name, email, email_verified_at, avatar, status, age_confirmed_at, terms_accepted_at, created_at
+         FROM users WHERE id = ? LIMIT 1'
+    );
     $statement->execute([$user['id']]);
 
     return $statement->fetch() ?: null;
@@ -228,6 +240,75 @@ function csrf_token(): string
 function token_hash(string $token): string
 {
     return hash('sha256', $token);
+}
+
+function rate_limit_identity(string $identity = ''): string
+{
+    $ip = trim((string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+    return substr($ip . '|' . strtolower(trim($identity)), 0, 500);
+}
+
+function rate_limit_exceeded(string $bucket, string $identity, int $maximum, int $windowSeconds): bool
+{
+    return count(rate_limit_attempts($bucket, $identity, $windowSeconds, false)) >= $maximum;
+}
+
+function rate_limit_hit(string $bucket, string $identity, int $windowSeconds): void
+{
+    rate_limit_attempts($bucket, $identity, $windowSeconds, true);
+}
+
+function rate_limit_clear(string $bucket, string $identity): void
+{
+    $path = rate_limit_file($bucket, $identity);
+    if (is_file($path)) {
+        @unlink($path);
+    }
+}
+
+function rate_limit_attempts(string $bucket, string $identity, int $windowSeconds, bool $addAttempt): array
+{
+    $path = rate_limit_file($bucket, $identity);
+    $directory = dirname($path);
+    if (!is_dir($directory) && !@mkdir($directory, 0770, true) && !is_dir($directory)) {
+        return [];
+    }
+
+    $handle = @fopen($path, 'c+');
+    if ($handle === false || !flock($handle, LOCK_EX)) {
+        if (is_resource($handle)) {
+            fclose($handle);
+        }
+        return [];
+    }
+
+    rewind($handle);
+    $decoded = json_decode((string) stream_get_contents($handle), true);
+    $cutoff = time() - max(1, $windowSeconds);
+    $attempts = array_values(array_filter(
+        is_array($decoded) ? $decoded : [],
+        static fn (mixed $timestamp): bool => is_int($timestamp) && $timestamp >= $cutoff
+    ));
+
+    if ($addAttempt) {
+        $attempts[] = time();
+    }
+
+    ftruncate($handle, 0);
+    rewind($handle);
+    fwrite($handle, json_encode($attempts, JSON_THROW_ON_ERROR));
+    fflush($handle);
+    flock($handle, LOCK_UN);
+    fclose($handle);
+
+    return $attempts;
+}
+
+function rate_limit_file(string $bucket, string $identity): string
+{
+    $safeBucket = preg_replace('/[^a-z0-9_-]+/i', '-', $bucket) ?: 'request';
+    $key = hash('sha256', rate_limit_identity($identity));
+    return dirname(__DIR__) . '/storage/rate-limits/' . $safeBucket . '-' . $key . '.json';
 }
 
 function app_url(string $path = ''): string
@@ -491,6 +572,27 @@ function lesson_image_url(string $image): string
     return str_starts_with($image, '/') || str_starts_with($image, 'http')
         ? $image
         : 'https://source.unsplash.com/1200x850/?' . rawurlencode($image);
+}
+
+function safe_profile_image_url(string $image): string
+{
+    $image = trim($image);
+    if ($image === '') {
+        return '';
+    }
+
+    if (str_starts_with($image, '/uploads/teachers/')) {
+        $filename = basename(rawurldecode($image));
+        return $filename !== '' && !in_array($filename, ['.', '..'], true)
+            ? '/uploads/teachers/' . rawurlencode($filename)
+            : '';
+    }
+
+    if (filter_var($image, FILTER_VALIDATE_URL) && strtolower((string) parse_url($image, PHP_URL_SCHEME)) === 'https') {
+        return $image;
+    }
+
+    return '';
 }
 
 function ensure_lesson_topics_table(): void

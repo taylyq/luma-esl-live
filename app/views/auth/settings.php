@@ -32,10 +32,10 @@
                     <input name="current_password" type="password" required autocomplete="current-password">
                 </label>
                 <label>New password
-                    <input name="password" type="password" required minlength="8" autocomplete="new-password">
+                    <input name="password" type="password" required minlength="12" autocomplete="new-password">
                 </label>
                 <label>Confirm new password
-                    <input name="password_confirmation" type="password" required minlength="8" autocomplete="new-password">
+                    <input name="password_confirmation" type="password" required minlength="12" autocomplete="new-password">
                 </label>
                 <button class="button button-dark full" type="submit">Update password</button>
             </form>

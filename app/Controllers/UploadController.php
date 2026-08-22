@@ -54,10 +54,27 @@ final class UploadController
             $this->notFound();
         }
 
+        $modifiedAt = (int) filemtime($path);
+        $size = (int) filesize($path);
+        $inode = (int) fileinode($path);
+        $etag = '"' . hash('sha256', $path . '|' . $inode . '|' . $modifiedAt . '|' . $size) . '"';
+
         header('Content-Type: ' . $mime);
-        header('Content-Length: ' . (string) filesize($path));
-        header('Cache-Control: public, max-age=31536000, immutable');
-        readfile($path);
+        header('Cache-Control: public, max-age=300, must-revalidate');
+        header('ETag: ' . $etag);
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $modifiedAt) . ' GMT');
+
+        $clientEtag = trim((string) ($_SERVER['HTTP_IF_NONE_MATCH'] ?? ''));
+        $clientModified = strtotime((string) ($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '')) ?: 0;
+        if ($clientEtag === $etag || ($clientModified > 0 && $clientModified >= $modifiedAt)) {
+            http_response_code(304);
+            exit;
+        }
+
+        header('Content-Length: ' . (string) $size);
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'HEAD') {
+            readfile($path);
+        }
         exit;
     }
 

@@ -22,6 +22,20 @@ final class PageController
         $viewerId = (int) ($viewer['id'] ?? 0);
         $startDate = new \DateTimeImmutable('today');
         $endDate = $startDate->modify('+7 days');
+        $historyCondition = '0 = 1';
+        $params = [$viewerId, $startDate->format('Y-m-d H:i:s'), $endDate->format('Y-m-d H:i:s')];
+
+        if (($viewer['role'] ?? '') === 'admin') {
+            $historyCondition = 'cl.end_time < CURRENT_TIMESTAMP';
+        } elseif (($viewer['role'] ?? '') === 'educator') {
+            $historyCondition = 'cl.end_time < CURRENT_TIMESTAMP AND ep.user_id = ?';
+            $params[] = $viewerId;
+        } elseif (($viewer['role'] ?? '') === 'student') {
+            $historyCondition = 'cl.end_time < CURRENT_TIMESTAMP AND EXISTS (
+                SELECT 1 FROM enrollments history_e WHERE history_e.class_id = cl.id AND history_e.student_id = ?
+            )';
+            $params[] = $viewerId;
+        }
 
         $statement = db()->prepare(
             "SELECT cl.*, ep.id AS educator_id, ep.headline, ep.profile_photo, ep.hourly_rate, ep.verified,
@@ -33,13 +47,14 @@ final class PageController
              JOIN users u ON u.id = ep.user_id
              WHERE cl.status = 'published'
                 AND ep.approval_status = 'approved'
+                AND u.status != 'suspended'
                 AND (
                     (cl.start_time >= ? AND cl.start_time < ?)
-                    OR cl.end_time < CURRENT_TIMESTAMP
+                    OR ({$historyCondition})
                 )
              ORDER BY cl.start_time ASC"
         );
-        $statement->execute([$viewerId, $startDate->format('Y-m-d H:i:s'), $endDate->format('Y-m-d H:i:s')]);
+        $statement->execute($params);
 
         $classesByDay = [
             'upcoming' => [],

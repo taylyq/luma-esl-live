@@ -2,16 +2,25 @@
 
 declare(strict_types=1);
 
-session_set_cookie_params([
-    'lifetime' => 0,
-    'path' => '/',
-    'domain' => '',
-    'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
-    'httponly' => true,
-    'samesite' => 'Lax',
-]);
+$requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+$isUploadRequest = preg_match('#^/uploads/(lessons|teachers)/[^/]+$#', $requestPath) === 1;
 
-session_start();
+if (!$isUploadRequest) {
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.cookie_httponly', '1');
+
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '',
+        'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+
+    session_start();
+}
 
 spl_autoload_register(function (string $class): void {
     $prefix = 'App\\';
@@ -51,11 +60,17 @@ foreach ($envCandidates as $candidate) {
 }
 
 $config = require $rootPath . '/config.php';
+$GLOBALS['config'] = $config;
+
+if ($isUploadRequest) {
+    return;
+}
 
 try {
     $GLOBALS['pdo'] = App\Database::connect($config['db']);
 } catch (Throwable $exception) {
     $dbConfig = $config['db'] ?? [];
+    $isProduction = strtolower((string) ($config['app_env'] ?? 'production')) === 'production';
     $rawMessage = $exception->getMessage();
     $safeReason = 'Connection failed';
 
@@ -69,8 +84,10 @@ try {
         $safeReason = 'PHP MySQL driver is missing. Enable the PDO MySQL extension in Hostinger PHP settings.';
     }
 
-    $GLOBALS['pdo_error'] = 'Database connection failed. Check the details below and storage/database-error.log on Hostinger.';
-    $GLOBALS['pdo_setup'] = [
+    $GLOBALS['pdo_error'] = $isProduction
+        ? 'The service is temporarily unavailable. Please try again shortly.'
+        : 'Database connection failed. Check the details below and storage/database-error.log.';
+    $GLOBALS['pdo_setup'] = $isProduction ? [] : [
         'reason' => $safeReason,
         'env_file' => $envPath ? env_location_label($rootPath, $envPath) : 'Missing',
         'driver' => (string) ($dbConfig['driver'] ?? ''),
@@ -90,16 +107,14 @@ try {
             "[%s] %s using driver=%s host=%s port=%s database=%s username=%s password=%s\n",
             date('c'),
             $exception->getMessage(),
-            $GLOBALS['pdo_setup']['driver'],
-            $GLOBALS['pdo_setup']['host'],
-            $GLOBALS['pdo_setup']['port'],
-            $GLOBALS['pdo_setup']['database'],
-            $GLOBALS['pdo_setup']['username'],
-            $GLOBALS['pdo_setup']['password']
+            (string) ($dbConfig['driver'] ?? ''),
+            (string) ($dbConfig['host'] ?? ''),
+            (string) ($dbConfig['port'] ?? ''),
+            (string) ($dbConfig['database'] ?? ''),
+            (string) ($dbConfig['username'] ?? ''),
+            !empty($dbConfig['password']) ? 'Set' : 'Missing'
         ),
         3,
         $logPath
     );
 }
-
-$GLOBALS['config'] = $config;

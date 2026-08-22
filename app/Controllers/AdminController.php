@@ -62,12 +62,12 @@ final class AdminController
         ensure_user_compliance_columns();
 
         $name = trim((string) ($_POST['name'] ?? ''));
-        $email = trim((string) ($_POST['email'] ?? ''));
+        $email = strtolower(trim((string) ($_POST['email'] ?? '')));
         $password = (string) ($_POST['password'] ?? '');
         $confirm = (string) ($_POST['password_confirmation'] ?? '');
 
-        if (strlen($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 8 || $password !== $confirm) {
-            flash('error', 'Enter a name, valid email, and matching password with at least 8 characters.');
+        if (strlen($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 12 || $password !== $confirm) {
+            flash('error', 'Enter a name, valid email, and matching password with at least 12 characters.');
             redirect('/admin');
         }
 
@@ -128,7 +128,7 @@ final class AdminController
                 continue;
             }
 
-            $photo = trim((string) ($profileData['profile_photo'] ?? ''));
+            $photo = safe_profile_image_url((string) ($profileData['profile_photo'] ?? ''));
             $uploadedFile = $this->nestedEducatorPhotoUpload($profileId);
             if ($uploadedFile !== null) {
                 $photo = $this->storeEducatorProfilePhoto($uploadedFile);

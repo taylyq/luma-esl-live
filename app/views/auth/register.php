@@ -10,7 +10,7 @@
             </div>
             <label>Name<input name="name" required value="<?= post_value('name') ?>"></label>
             <label>Email<input name="email" type="email" required value="<?= post_value('email') ?>"></label>
-            <label>Password<input name="password" type="password" required minlength="8"></label>
+            <label>Password<input name="password" type="password" required minlength="12" autocomplete="new-password"></label>
             <input class="hp-field" type="text" name="website" value="" tabindex="-1" autocomplete="off" aria-hidden="true">
             <div class="captcha-card" data-captcha>
                 <input type="hidden" name="captcha_id" value="<?= e($captcha['id'] ?? '') ?>">

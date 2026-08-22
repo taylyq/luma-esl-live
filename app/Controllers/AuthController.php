@@ -6,6 +6,8 @@ namespace App\Controllers;
 
 final class AuthController
 {
+    private const MIN_PASSWORD_LENGTH = 12;
+
     public function login(): void
     {
         view('auth/login', ['title' => 'Sign in']);
@@ -63,6 +65,7 @@ final class AuthController
             if ($user) {
                 $update = db()->prepare('UPDATE users SET email_verified_at = CURRENT_TIMESTAMP, email_verification_token = NULL, status = IFNULL(NULLIF(status, "pending"), "active") WHERE id = ?');
                 $update->execute([$user['id']]);
+                session_regenerate_id(true);
                 $_SESSION['user_id'] = $user['id'];
                 flash('success', 'Email verified. Welcome in.');
                 redirect('/dashboard');
@@ -77,18 +80,33 @@ final class AuthController
 
     public function authenticate(): void
     {
-        $email = trim((string) ($_POST['email'] ?? ''));
+        $email = strtolower(trim((string) ($_POST['email'] ?? '')));
         $password = (string) ($_POST['password'] ?? '');
+        $rateIdentity = $email;
+
+        if (rate_limit_exceeded('login', $rateIdentity, 8, 900)) {
+            flash('error', 'Too many sign-in attempts. Please wait 15 minutes and try again.');
+            redirect('/login');
+        }
 
         $statement = db()->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');
         $statement->execute([$email]);
         $user = $statement->fetch();
 
         if (!$user || !password_verify($password, $user['password'])) {
+            rate_limit_hit('login', $rateIdentity, 900);
             flash('error', 'Those credentials did not match.');
             redirect('/login');
         }
 
+        if (($user['status'] ?? '') === 'suspended') {
+            rate_limit_hit('login', $rateIdentity, 900);
+            flash('error', 'This account is unavailable. Contact support if you believe this is a mistake.');
+            redirect('/login');
+        }
+
+        rate_limit_clear('login', $rateIdentity);
+        session_regenerate_id(true);
         $_SESSION['user_id'] = $user['id'];
 
         if (empty($user['email_verified_at'])) {
@@ -103,11 +121,17 @@ final class AuthController
         ensure_user_compliance_columns();
 
         $name = trim((string) ($_POST['name'] ?? ''));
-        $email = trim((string) ($_POST['email'] ?? ''));
+        $email = strtolower(trim((string) ($_POST['email'] ?? '')));
         $password = (string) ($_POST['password'] ?? '');
         $role = (string) ($_POST['role'] ?? 'student');
         $adultConfirm = isset($_POST['adult_confirm']);
         $termsAccept = isset($_POST['terms_accept']);
+
+        if (rate_limit_exceeded('register', '', 5, 3600)) {
+            flash('error', 'Too many account-creation attempts. Please try again later.');
+            redirect('/register');
+        }
+        rate_limit_hit('register', '', 3600);
 
         if (!$this->captchaPassed()) {
             flash('error', 'Complete the drag-and-drop verification before creating an account.');
@@ -119,15 +143,17 @@ final class AuthController
             redirect('/register');
         }
 
-        if (!in_array($role, ['student', 'educator'], true) || strlen($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 8) {
-            flash('error', 'Please enter a name, valid email, role, and password with at least 8 characters.');
+        if (!in_array($role, ['student', 'educator'], true) || strlen($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < self::MIN_PASSWORD_LENGTH) {
+            flash('error', 'Please enter a name, valid email, role, and password with at least 12 characters.');
             redirect('/register');
         }
 
         $verificationToken = bin2hex(random_bytes(32));
         $confirmedAt = date('Y-m-d H:i:s');
-        $statement = db()->prepare('INSERT INTO users (role, name, email, password, email_verification_token, status, age_confirmed_at, terms_accepted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+        $pdo = db();
+        $pdo->beginTransaction();
         try {
+            $statement = $pdo->prepare('INSERT INTO users (role, name, email, password, email_verification_token, status, age_confirmed_at, terms_accepted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
             $statement->execute([
                 $role,
                 $name,
@@ -138,20 +164,27 @@ final class AuthController
                 $confirmedAt,
                 $confirmedAt,
             ]);
-        } catch (\Throwable) {
-            flash('error', 'An account already exists for that email.');
-            redirect('/register');
+            $userId = (int) $pdo->lastInsertId();
+            if ($role === 'educator') {
+                $profile = $pdo->prepare(
+                    "INSERT INTO educator_profiles (user_id, headline, bio, approval_status)
+                     VALUES (?, 'New ESL educator', 'Tell students what makes your class clear, kind, and useful.', 'pending')"
+                );
+                $profile->execute([$userId]);
+            }
+            $pdo->commit();
+        } catch (\Throwable $exception) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            if ($this->isDuplicateKeyException($exception)) {
+                flash('error', 'An account already exists for that email.');
+                redirect('/register');
+            }
+            throw $exception;
         }
 
-        $userId = (int) db()->lastInsertId();
-        if ($role === 'educator') {
-            $profile = db()->prepare(
-                "INSERT INTO educator_profiles (user_id, headline, bio, approval_status)
-                 VALUES (?, 'New ESL educator', 'Tell students what makes your class clear, kind, and useful.', 'pending')"
-            );
-            $profile->execute([$userId]);
-        }
-
+        session_regenerate_id(true);
         $_SESSION['user_id'] = $userId;
         $this->sendVerificationEmail($email, $verificationToken);
         redirect('/email/verify');
@@ -176,7 +209,12 @@ final class AuthController
 
     public function sendResetLink(): void
     {
-        $email = trim((string) ($_POST['email'] ?? ''));
+        $email = strtolower(trim((string) ($_POST['email'] ?? '')));
+        if (rate_limit_exceeded('password-reset-email', $email, 3, 900)) {
+            flash('success', 'If that email exists, a reset link has been sent.');
+            redirect('/forgot-password');
+        }
+        rate_limit_hit('password-reset-email', $email, 900);
         $statement = db()->prepare('SELECT id, email, name FROM users WHERE email = ? LIMIT 1');
         $statement->execute([$email]);
         $user = $statement->fetch();
@@ -203,8 +241,14 @@ final class AuthController
         $password = (string) ($_POST['password'] ?? '');
         $confirm = (string) ($_POST['password_confirmation'] ?? '');
 
-        if (strlen($password) < 8 || $password !== $confirm) {
-            flash('error', 'Use a matching password with at least 8 characters.');
+        if (rate_limit_exceeded('password-reset', $token, 8, 900)) {
+            flash('error', 'Too many reset attempts. Request a new password link.');
+            redirect('/forgot-password');
+        }
+
+        if (strlen($password) < self::MIN_PASSWORD_LENGTH || $password !== $confirm) {
+            rate_limit_hit('password-reset', $token, 900);
+            flash('error', 'Use a matching password with at least 12 characters.');
             redirect('/reset-password?token=' . urlencode($token));
         }
 
@@ -215,6 +259,7 @@ final class AuthController
         $reset = $statement->fetch();
 
         if (!$reset) {
+            rate_limit_hit('password-reset', $token, 900);
             flash('error', 'That reset link is invalid or expired.');
             redirect('/forgot-password');
         }
@@ -222,8 +267,9 @@ final class AuthController
         $update = db()->prepare('UPDATE users SET password = ? WHERE id = ?');
         $update->execute([password_hash($password, PASSWORD_DEFAULT), $reset['user_id']]);
 
-        $used = db()->prepare('UPDATE password_resets SET used_at = CURRENT_TIMESTAMP WHERE id = ?');
-        $used->execute([$reset['id']]);
+        $used = db()->prepare('UPDATE password_resets SET used_at = CURRENT_TIMESTAMP WHERE user_id = ? AND used_at IS NULL');
+        $used->execute([$reset['user_id']]);
+        rate_limit_clear('password-reset', $token);
 
         flash('success', 'Password updated. You can sign in now.');
         redirect('/login');
@@ -240,13 +286,20 @@ final class AuthController
         $statement->execute([$user['id']]);
         $freshUser = $statement->fetch();
 
+        $rateIdentity = (string) $user['id'];
+        if (rate_limit_exceeded('change-password', $rateIdentity, 6, 900)) {
+            flash('error', 'Too many password attempts. Please wait 15 minutes and try again.');
+            redirect('/settings');
+        }
+
         if (!$freshUser || !password_verify($currentPassword, $freshUser['password'])) {
+            rate_limit_hit('change-password', $rateIdentity, 900);
             flash('error', 'Current password was not correct.');
             redirect('/settings');
         }
 
-        if (strlen($password) < 8 || $password !== $confirm) {
-            flash('error', 'Use a matching new password with at least 8 characters.');
+        if (strlen($password) < self::MIN_PASSWORD_LENGTH || $password !== $confirm) {
+            flash('error', 'Use a matching new password with at least 12 characters.');
             redirect('/settings');
         }
 
@@ -257,6 +310,7 @@ final class AuthController
 
         $update = db()->prepare('UPDATE users SET password = ? WHERE id = ?');
         $update->execute([password_hash($password, PASSWORD_DEFAULT), $user['id']]);
+        rate_limit_clear('change-password', $rateIdentity);
         session_regenerate_id(true);
 
         flash('success', 'Password changed successfully.');
@@ -276,6 +330,13 @@ final class AuthController
             redirect('/dashboard');
         }
 
+        $rateIdentity = (string) $user['id'];
+        if (rate_limit_exceeded('verification-email', $rateIdentity, 3, 3600)) {
+            flash('error', 'Too many verification emails were requested. Please try again later.');
+            redirect('/email/verify');
+        }
+        rate_limit_hit('verification-email', $rateIdentity, 3600);
+
         $token = bin2hex(random_bytes(32));
         $statement = db()->prepare('UPDATE users SET email_verification_token = ? WHERE id = ?');
         $statement->execute([token_hash($token), $user['id']]);
@@ -292,6 +353,11 @@ final class AuthController
 
     public function destroy(): void
     {
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+        }
         session_destroy();
         redirect('/');
     }
@@ -369,5 +435,11 @@ final class AuthController
 
         return hash_equals((string) ($captcha['id'] ?? ''), $id)
             && hash_equals((string) ($captcha['answer'] ?? ''), $answer);
+    }
+
+    private function isDuplicateKeyException(\Throwable $exception): bool
+    {
+        return $exception instanceof \PDOException
+            && in_array((string) $exception->getCode(), ['23000', '19'], true);
     }
 }

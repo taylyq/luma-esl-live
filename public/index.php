@@ -8,13 +8,21 @@ header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: SAMEORIGIN');
 header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+header('X-Permitted-Cross-Domain-Policies: none');
+
+if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443) {
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
 
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 if (isset($GLOBALS['pdo_error'])) {
+    $isProduction = strtolower((string) config('app_env', 'production')) === 'production';
+    http_response_code(503);
+    header('Retry-After: 300');
     view('error', [
-        'title' => 'Database setup needed',
+        'title' => $isProduction ? 'Temporarily unavailable' : 'Database setup needed',
         'message' => $GLOBALS['pdo_error'],
         'details' => $GLOBALS['pdo_setup'] ?? [],
     ]);
@@ -26,7 +34,8 @@ if ($method === 'POST') {
 }
 
 $routes = require dirname(__DIR__) . '/app/routes.php';
-$handler = $routes[$method][$path] ?? null;
+$routeMethod = $method === 'HEAD' ? 'GET' : $method;
+$handler = $routes[$routeMethod][$path] ?? null;
 
 if (!$handler && preg_match('#^/teachers/(\d+)$#', $path, $matches)) {
     $handler = ['TeacherController', 'show'];

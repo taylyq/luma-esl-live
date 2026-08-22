@@ -15,8 +15,8 @@
                 <input type="hidden" name="_token" value="<?= csrf_token() ?>">
                 <label>Name<input name="name" required></label>
                 <label>Email<input name="email" type="email" required></label>
-                <label>Password<input name="password" type="password" minlength="8" required></label>
-                <label>Confirm password<input name="password_confirmation" type="password" minlength="8" required></label>
+                <label>Password<input name="password" type="password" minlength="12" autocomplete="new-password" required></label>
+                <label>Confirm password<input name="password_confirmation" type="password" minlength="12" autocomplete="new-password" required></label>
                 <button class="button button-dark full" type="submit">Create admin</button>
             </form>
         </article>

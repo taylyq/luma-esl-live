@@ -47,7 +47,7 @@ final class ChatController
         $user = require_adult_confirmed($user);
         $recipientId = (int) ($_POST['recipient_id'] ?? 0);
         $educatorId = (int) ($_POST['educator_id'] ?? 0);
-        $body = trim((string) ($_POST['message_body'] ?? 'I am interested in your next Zoom class.'));
+        $body = substr(trim((string) ($_POST['message_body'] ?? 'I am interested in your next Zoom class.')), 0, 5000);
 
         if ($recipientId === 0 && $educatorId > 0) {
             $teacher = db()->prepare('SELECT id, user_id FROM educator_profiles WHERE id = ? AND approval_status = "approved" LIMIT 1');
@@ -73,6 +73,7 @@ final class ChatController
         $chatId = $this->findOrCreateChat((int) $user['id'], (int) $recipient['id']);
 
         if ($body !== '') {
+            $this->enforceMessageRateLimit($user, '/messages/' . $chatId);
             $message = db()->prepare('INSERT INTO messages (chat_id, sender_id, message_body) VALUES (?, ?, ?)');
             $message->execute([$chatId, $user['id'], $body]);
         }
@@ -85,8 +86,13 @@ final class ChatController
         $user = require_auth();
         $user = require_adult_confirmed($user);
         $chatId = (int) ($_POST['chat_id'] ?? 0);
-        $body = trim((string) ($_POST['message_body'] ?? ''));
+        $body = substr(trim((string) ($_POST['message_body'] ?? '')), 0, 5000);
         $chat = $this->authorizeChat($chatId, $user);
+
+        if (($chat['counterpart_status'] ?? '') === 'suspended') {
+            flash('error', 'This account is unavailable.');
+            redirect('/messages');
+        }
 
         if ($this->isBlockedConversation($user, [
             'id' => $chat['counterpart_id'],
@@ -97,6 +103,7 @@ final class ChatController
         }
 
         if ($body !== '') {
+            $this->enforceMessageRateLimit($user, '/messages/' . $chatId);
             $message = db()->prepare('INSERT INTO messages (chat_id, sender_id, message_body) VALUES (?, ?, ?)');
             $message->execute([$chatId, $user['id'], $body]);
         }
@@ -134,13 +141,20 @@ final class ChatController
         $chatId = (int) ($_POST['chat_id'] ?? 0);
         $messageId = (int) ($_POST['message_id'] ?? 0);
         $reason = (string) ($_POST['reason'] ?? 'other');
-        $details = trim((string) ($_POST['details'] ?? ''));
+        $details = substr(trim((string) ($_POST['details'] ?? '')), 0, 2000);
         $chat = $this->authorizeChat($chatId, $user);
 
         if (!$this->canUseSafetyActions($user, $chat)) {
             flash('error', 'Admins cannot be reported.');
             redirect('/messages/' . $chatId);
         }
+
+        $reportRateIdentity = (string) $user['id'];
+        if (rate_limit_exceeded('message-report', $reportRateIdentity, 10, 3600)) {
+            flash('error', 'Too many reports were submitted. Please try again later.');
+            redirect('/messages/' . $chatId);
+        }
+        rate_limit_hit('message-report', $reportRateIdentity, 3600);
 
         if (!in_array($reason, ['spam', 'inappropriate', 'safety', 'other'], true)) {
             $reason = 'other';
@@ -182,7 +196,8 @@ final class ChatController
             "SELECT c.*,
                 other_user.id AS counterpart_id,
                 other_user.name AS counterpart,
-                other_user.role AS counterpart_role
+                other_user.role AS counterpart_role,
+                other_user.status AS counterpart_status
              FROM chats c
              JOIN users other_user ON other_user.id = CASE WHEN c.user_one_id = ? + 0 THEN c.user_two_id ELSE c.user_one_id END
              WHERE c.id = ? AND (c.user_one_id = ? + 0 OR c.user_two_id = ? + 0)
@@ -373,5 +388,15 @@ final class ChatController
     {
         $statement = db()->prepare('UPDATE messages SET read_at = CURRENT_TIMESTAMP WHERE chat_id = ? AND sender_id != ? AND read_at IS NULL');
         $statement->execute([$chatId, $userId]);
+    }
+
+    private function enforceMessageRateLimit(array $user, string $redirectPath): void
+    {
+        $identity = (string) $user['id'];
+        if (rate_limit_exceeded('message-send', $identity, 30, 60)) {
+            flash('error', 'You are sending messages too quickly. Please wait a minute.');
+            redirect($redirectPath);
+        }
+        rate_limit_hit('message-send', $identity, 60);
     }
 }

@@ -1,5 +1,8 @@
 <?php
 
+$databasePath = (string) env_value('DB_PATH', 'database/demo.sqlite');
+$databasePath = str_starts_with($databasePath, '/') ? $databasePath : __DIR__ . '/' . $databasePath;
+
 $config = [
     'app_name' => env_value('APP_NAME', 'Luma ESL'),
     'app_url' => env_value('APP_URL', 'https://lumaesl.alpacatravels.com'),
@@ -10,7 +13,7 @@ $config = [
     ],
     'db' => [
         'driver' => env_value('DB_DRIVER', 'mysql'),
-        'path' => __DIR__ . '/' . env_value('DB_PATH', 'database/demo.sqlite'),
+        'path' => $databasePath,
         'host' => env_value('DB_HOST', 'localhost'),
         'port' => env_value('DB_PORT', '3306'),
         'database' => env_value('DB_DATABASE', 'u223591156_lumaesl'),

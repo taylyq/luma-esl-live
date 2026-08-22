@@ -94,10 +94,17 @@ final class TeacherController
     public function update(): void
     {
         $user = require_auth('educator');
-        $photo = trim((string) ($_POST['profile_photo'] ?? ''));
+        $photo = safe_profile_image_url((string) ($_POST['profile_photo'] ?? ''));
 
         if (!empty($_FILES['profile_photo_upload']['tmp_name'])) {
             $photo = $this->storeProfilePhoto($_FILES['profile_photo_upload']);
+        }
+
+        $headline = substr(trim((string) ($_POST['headline'] ?? '')), 0, 190);
+        $bio = substr(trim((string) ($_POST['bio'] ?? '')), 0, 10000);
+        if ($headline === '' || $bio === '') {
+            flash('error', 'A headline and teaching bio are required.');
+            redirect('/teacher/profile');
         }
 
         $statement = db()->prepare(
@@ -106,14 +113,14 @@ final class TeacherController
              WHERE user_id = ?'
         );
         $statement->execute([
-            trim((string) $_POST['headline']),
-            trim((string) $_POST['bio']),
-            (int) $_POST['years_experience'],
-            trim((string) $_POST['native_language']),
-            trim((string) $_POST['teaching_languages']),
-            trim((string) $_POST['specialties']),
-            (float) $_POST['hourly_rate'],
-            trim((string) $_POST['timezone']),
+            $headline,
+            $bio,
+            min(80, max(0, (int) ($_POST['years_experience'] ?? 0))),
+            substr(trim((string) ($_POST['native_language'] ?? '')), 0, 80),
+            substr(trim((string) ($_POST['teaching_languages'] ?? '')), 0, 190),
+            substr(trim((string) ($_POST['specialties'] ?? '')), 0, 255),
+            min(999999.99, max(0, (float) ($_POST['hourly_rate'] ?? 0))),
+            substr(trim((string) ($_POST['timezone'] ?? 'UTC')), 0, 80),
             $photo,
             $user['id'],
         ]);
