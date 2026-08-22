@@ -36,7 +36,26 @@ if (themeToggle) {
 
 if (navToggle && nav) {
     navToggle.addEventListener('click', () => {
-        nav.classList.toggle('open');
+        const isOpen = nav.classList.toggle('open');
+        navToggle.classList.toggle('active', isOpen);
+        navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        navToggle.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+    });
+
+    nav.addEventListener('click', (event) => {
+        if (!(event.target instanceof Element) || !event.target.closest('a')) return;
+        nav.classList.remove('open');
+        navToggle.classList.remove('active');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.setAttribute('aria-label', 'Open navigation');
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape' || !nav.classList.contains('open')) return;
+        nav.classList.remove('open');
+        navToggle.classList.remove('active');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.focus();
     });
 }
 
@@ -219,7 +238,12 @@ window.googleTranslateElementInit = function () {
 };
 
 if (languageSelects.length) {
-    const savedLanguage = localStorage.getItem('luma_language') || 'en';
+    let savedLanguage = 'en';
+    try {
+        savedLanguage = localStorage.getItem('luma_language') || 'en';
+    } catch (error) {
+        savedLanguage = 'en';
+    }
     languageSelects.forEach((select) => {
         select.value = savedLanguage;
     });
@@ -230,7 +254,11 @@ if (languageSelects.length) {
 
     languageSelects.forEach((select) => {
         select.addEventListener('change', () => {
-            localStorage.setItem('luma_language', select.value);
+            try {
+                localStorage.setItem('luma_language', select.value);
+            } catch (error) {
+                // Translation still applies for this page view when storage is unavailable.
+            }
             document.documentElement.lang = select.value;
             setTranslateCookie(select.value);
             window.location.reload();

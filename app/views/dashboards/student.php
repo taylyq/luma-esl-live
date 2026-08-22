@@ -1,7 +1,7 @@
 <section class="app-shell">
     <div class="app-heading">
         <span class="eyebrow">Student dashboard</span>
-        <h1>Your next English steps.</h1>
+        <h1>Ready when you are, <?= e(explode(' ', (string) current_user()['name'])[0]) ?>.</h1>
         <a class="button button-dark" href="/teachers">Browse teachers</a>
     </div>
     <div class="dashboard-grid">

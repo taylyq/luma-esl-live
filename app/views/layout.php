@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://images.unsplash.com">
     <link rel="preconnect" href="https://source.unsplash.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.png" type="image/png">
     <script>
         (function () {
@@ -21,9 +21,10 @@
             }
         })();
     </script>
-    <link rel="stylesheet" href="/assets/css/app.css?v=20260518-theme-toggle-3">
+    <link rel="stylesheet" href="/assets/css/app.css?v=20260822-modern-ui-1">
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="site-header">
         <a class="brand" href="/" aria-label="<?= e(config('app_name')) ?> home">
             <img class="brand-logo" src="/assets/img/luma-esl-icon-small.png?v=1" alt="" aria-hidden="true">
@@ -86,7 +87,9 @@
                 <span class="theme-toggle-sun" aria-hidden="true"></span>
                 <span class="theme-toggle-thumb" aria-hidden="true"></span>
             </button>
-            <button class="nav-toggle" type="button" data-nav-toggle aria-label="Open navigation">☰</button>
+            <button class="nav-toggle" type="button" data-nav-toggle aria-label="Open navigation" aria-expanded="false">
+                <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
+            </button>
         </div>
     </header>
 
@@ -97,7 +100,7 @@
         <div class="flash error"><?= e($message) ?></div>
     <?php endif; ?>
 
-    <main>
+    <main id="main-content">
         <?php require dirname(__DIR__) . '/views/' . $template . '.php'; ?>
     </main>
 
@@ -116,7 +119,7 @@
         </div>
     </footer>
     <div id="google_translate_element" aria-hidden="true"></div>
-    <script src="/assets/js/app.js?v=20260518-theme-toggle-3" defer></script>
+    <script src="/assets/js/app.js?v=20260822-modern-ui-1" defer></script>
     <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
 </body>
 </html>

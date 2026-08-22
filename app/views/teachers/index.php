@@ -1,7 +1,10 @@
 <section class="page-hero compact">
-    <span class="eyebrow">Teacher directory</span>
-    <h1>Find your fit before you join.</h1>
-    <p>Search verified ESL educators by goal, level, class type, and teaching style.</p>
+    <div>
+        <span class="eyebrow">Teacher directory</span>
+        <h1>Find someone who gets how you learn.</h1>
+        <p>Explore approved ESL educators by goal, level, class type, and teaching style.</p>
+    </div>
+    <div class="page-hero-note"><strong>Message first</strong><span>Get comfortable before you commit.</span></div>
 </section>
 
 <section class="directory-layout">

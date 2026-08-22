@@ -1,7 +1,7 @@
 <section class="app-shell">
     <div class="app-heading">
         <span class="eyebrow">Teacher dashboard</span>
-        <h1>Today’s teaching cockpit.</h1>
+        <h1>Your teaching week, <?= e(explode(' ', (string) current_user()['name'])[0]) ?>.</h1>
         <a class="button button-dark" href="/teacher/classes">Manage classes</a>
     </div>
     <div class="dashboard-grid">

@@ -6,10 +6,17 @@ foreach ($lessonTopics as $lesson) {
 $firstLesson = $lessonTopics[0] ?? null;
 ?>
 
-<section class="section narrow center">
-    <span class="eyebrow">Lessons</span>
-    <h1>Explore beginner English topics by unit.</h1>
-    <p class="lede">Choose a topic on the left and preview the lesson image instantly on the right.</p>
+<section class="section lessons-intro">
+    <div>
+        <span class="eyebrow">Visual lesson library</span>
+        <h1>Learn it. See it. Use it.</h1>
+        <p class="lede">Pick a topic and jump straight into a visual English lesson.</p>
+    </div>
+    <div class="lessons-intro-stats" aria-label="Lesson library summary">
+        <div><strong><?= count($lessonTopics) ?></strong><span>topics</span></div>
+        <div><strong><?= count($unitTopics) ?></strong><span>units</span></div>
+        <div><strong>A2-B1</strong><span>level</span></div>
+    </div>
 </section>
 
 <?php if (!$firstLesson): ?>
@@ -19,6 +26,10 @@ $firstLesson = $lessonTopics[0] ?? null;
 <?php else: ?>
     <section class="lessons-shell" data-lessons>
         <aside class="lesson-sidebar" aria-label="Lesson topics">
+            <div class="lesson-sidebar-heading">
+                <strong>Topics</strong>
+                <span><?= count($lessonTopics) ?> lessons</span>
+            </div>
             <?php foreach ($unitTopics as $unit => $topics): ?>
                 <section class="lesson-unit">
                     <h2><?= e($unit) ?></h2>
@@ -44,6 +55,7 @@ $firstLesson = $lessonTopics[0] ?? null;
             <div class="lesson-preview-copy">
                 <span class="eyebrow" data-lesson-unit-label><?= e($firstLesson['unit']) ?></span>
                 <h2 data-lesson-title><?= e($firstLesson['topic']) ?></h2>
+                <span class="lesson-key-hint">Use ↑ ↓ to browse</span>
             </div>
             <div class="lesson-image-wrap">
                 <div class="lesson-image-frame" data-lesson-image-frame>

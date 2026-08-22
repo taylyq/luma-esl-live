@@ -1,7 +1,7 @@
 <section class="app-shell">
     <div class="app-heading">
         <span class="eyebrow">Messages</span>
-        <h1>Clean conversations that lead to class.</h1>
+        <h1>Your conversations.</h1>
         <a class="button button-dark" href="/teachers">Find teachers</a>
     </div>
     <div class="messages-shell solo">

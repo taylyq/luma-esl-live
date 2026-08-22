@@ -10,6 +10,7 @@ foreach (array_keys($classesByDay['passed'] ?? []) as $dayKey) {
     $historyDays[$dayKey] = new DateTimeImmutable($dayKey);
 }
 krsort($historyDays);
+$upcomingCount = array_sum(array_map('count', $classesByDay['upcoming'] ?? []));
 
 $calendarSections = [
     'upcoming' => [
@@ -28,17 +29,35 @@ $calendarSections = [
 ?>
 
 <section class="calendar-hero" aria-labelledby="calendar-title">
-    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=82" alt="Students learning together in an online English class" width="1800" height="860" fetchpriority="high" decoding="async">
+    <img
+        src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=82"
+        srcset="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=78 900w, https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=80 1400w, https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=82 1800w"
+        sizes="100vw"
+        alt="Students learning together in an online English class"
+        width="1800"
+        height="860"
+        fetchpriority="high"
+        decoding="async"
+    >
     <div class="calendar-hero-shade" aria-hidden="true"></div>
     <div class="calendar-hero-content">
         <span class="eyebrow">Class calendar</span>
         <h1 id="calendar-title">Find a class happening this week.</h1>
         <p>Browse upcoming Zoom classes from approved LumaESL educators. Sign in to message teachers or request a seat.</p>
+        <div class="calendar-hero-actions">
+            <a class="button button-accent" href="#upcoming-classes">View this week</a>
+            <a class="button button-glass" href="/teachers">Meet teachers</a>
+        </div>
+        <div class="calendar-hero-facts" aria-label="Marketplace highlights">
+            <span><?= (int) $upcomingCount ?> upcoming</span>
+            <span>Live on Zoom</span>
+            <span>Approved educators</span>
+        </div>
     </div>
 </section>
 
 <?php foreach ($calendarSections as $sectionKey => $section): ?>
-    <section class="section calendar-shell <?= $sectionKey === 'passed' ? 'calendar-shell-passed' : '' ?>">
+    <section id="<?= $sectionKey === 'upcoming' ? 'upcoming-classes' : 'class-history' ?>" class="section calendar-shell <?= $sectionKey === 'passed' ? 'calendar-shell-passed' : '' ?>">
         <div class="section-heading calendar-heading">
             <div>
                 <span class="eyebrow"><?= e($section['eyebrow']) ?></span>
@@ -64,7 +83,7 @@ $calendarSections = [
 
                     <div class="calendar-classes">
                         <?php if (!$classes && $sectionKey !== 'passed'): ?>
-                            <div class="empty-state small"><?= e($section['empty']) ?></div>
+                            <div class="calendar-empty-slot"><span>No class listed</span><a href="/teachers">Explore teachers</a></div>
                         <?php endif; ?>
 
                         <?php foreach ($classes as $class): ?>
