@@ -30,20 +30,12 @@ php database/init_sqlite.php
 3. Start the PHP server:
 
 ```bash
-php -S localhost:8080 -t public
+php -S 127.0.0.1:8080 -t public dev-router.php
 ```
 
-4. Open `http://localhost:8080`.
+4. Open `http://127.0.0.1:8080`.
 
-Demo password for seeded accounts: `password`
-
-Seeded accounts:
-
-- `student@luma.test`
-- `amelia@luma.test`
-- `linh@luma.test`
-- `marcus@luma.test`
-- `admin@luma.test`
+Seeded accounts are intended for local development only. Do not publish test credentials or retain known seeded passwords in production.
 
 Local email verification and password reset messages are written to `storage/mail.log` unless `APP_USE_PHP_MAIL=true` is configured.
 
@@ -59,7 +51,7 @@ Local email verification and password reset messages are written to `storage/mai
 
 ## MySQL Setup
 
-To run against MySQL instead of SQLite, change `config.php` `db.driver` to `mysql`, update the credentials, then create the database and tables:
+To run against MySQL instead of SQLite, set the `DB_*` values in your untracked `.env`, then create the database and tables:
 
 ```bash
 mysql -u root -p < database/schema.sql
@@ -67,6 +59,8 @@ mysql -u root -p < database/seed.sql
 ```
 
 The MySQL schema and seed files are kept in `database/schema.sql` and `database/seed.sql`.
+
+Do not import the seed file into a public production database. Use migrations for changes to an existing live installation.
 
 ## Hostinger Live Deployment
 
@@ -77,3 +71,8 @@ Use:
 - `HOSTINGER_DEPLOY.md` for the step-by-step deployment guide
 - `.env.hostinger.example` for live environment settings
 - `database/hostinger_live_demo.sql` for phpMyAdmin import
+
+## Maintainer Handoff
+
+- `GEMINI_HANDOFF.md` documents architecture, security boundaries, deployment rules, testing, and known beta risks.
+- `GEMINI_START_PROMPT.md` contains a reusable kickoff prompt for Gemini or another maintainer.
